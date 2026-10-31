@@ -11,6 +11,7 @@ import { FadeIn, PressableScale } from "@/components/ui/motion";
 import { Field, Input } from "@/components/ui/Input";
 import { AppText } from "@/components/ui/Text";
 import { colors, radius, spacing } from "@/constants/theme";
+import { confirmAction } from "@/lib/confirm";
 import { friendlyError } from "@/lib/errors";
 import { formatRelative } from "@/lib/format";
 import { canParticipate, isOwner } from "@/lib/types";
@@ -151,7 +152,14 @@ export default function IdeasScreen() {
                     </View>
                     {canDelete ? (
                       <TouchableOpacity
-                        onPress={() => deleteIdea.mutate(idea.id)}
+                        onPress={() =>
+                          confirmAction(
+                            "Supprimer cette idée ?",
+                            `« ${idea.title} » et ses votes disparaîtront pour tout le groupe.`,
+                            "Supprimer",
+                            () => deleteIdea.mutate(idea.id, { onError: (e) => toast.error(friendlyError(e)) }),
+                          )
+                        }
                         hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
                         accessibilityRole="button"
                         accessibilityLabel={`Supprimer l'idée ${idea.title}`}

@@ -150,7 +150,7 @@ export function useIdeas(spaceId: string) {
       const ideaIds = ideas.map((i) => i.id);
       let votes: IdeaVote[] = [];
       if (ideaIds.length > 0) {
-        const { data: voteData } = await supabase.from("idea_votes").select("*").in("idea_id", ideaIds);
+        const { data: voteData } = await supabase.from("idea_votes").select("*").in("idea_id", ideaIds).eq("kind", "like");
         votes = (voteData ?? []) as IdeaVote[];
       }
 
@@ -177,7 +177,8 @@ export function useCreateIdea(spaceId: string) {
         space_id: spaceId,
         title: title.trim(),
         description: description.trim() || null,
-        status: "open",
+        // No status: the database starts every idea at "voting". The app used to
+        // send "open", which ideas_status_check refuses, so no idea was ever saved.
         proposed_by: userId,
       });
       if (error) throw error;
@@ -201,7 +202,8 @@ export function useToggleIdeaVote(spaceId: string) {
           .eq("user_id", userId as string);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("idea_votes").insert({ idea_id: ideaId, user_id: userId });
+        // kind is required by the table (idea_votes_kind_check: like | dislike).
+        const { error } = await supabase.from("idea_votes").insert({ idea_id: ideaId, user_id: userId, kind: "like" });
         // Already there (a double tap, or another device): that is the state we wanted.
         if (error && error.code !== "23505") throw error;
       }

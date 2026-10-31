@@ -147,6 +147,8 @@ export interface Idea {
 export interface IdeaVote {
   idea_id: string;
   user_id: string;
+  /** The table also allows "dislike" (the former Swift app); this app only upvotes. */
+  kind: "like" | "dislike";
 }
 
 export interface AppNotification {
