@@ -4,7 +4,7 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { BrandSplash } from "@/components/BrandSplash";
@@ -53,6 +53,10 @@ function RootNav() {
     // Never bounce away from the reset screen before recovery mode resolves
     // (the PASSWORD_RECOVERY event / native link parsing can arrive a tick late).
     if (!isAuthenticated && !inAuthGroup && !onReset) {
+      // Web visitors at the site root see the public landing page, rendered by
+      // app/(tabs)/_layout.tsx. Every other protected URL still goes to login.
+      const atWebRoot = Platform.OS === "web" && typeof window !== "undefined" && window.location.pathname === "/";
+      if (atWebRoot) return;
       router.replace("/login");
     } else if (isAuthenticated && inAuthGroup) {
       router.replace("/");
