@@ -310,7 +310,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }}>
+    <Screen scroll width="reading" contentStyle={{ paddingHorizontal: spacing.lg }}>
       <View style={{ paddingTop: spacing.sm, paddingBottom: spacing.md }}>
         <AppText variant="title">Profil</AppText>
       </View>

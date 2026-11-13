@@ -280,6 +280,9 @@ export default function OnboardingScreen() {
           left: spacing.xl,
           right: spacing.xl,
           gap: spacing.xl,
+          // On a desktop browser the button keeps a phone-like width instead of
+          // stretching across the whole window.
+          alignItems: "center",
         }}
       >
         <View style={{ flexDirection: "row", justifyContent: "center", gap: 7 }}>
@@ -302,13 +305,15 @@ export default function OnboardingScreen() {
           })}
         </View>
 
-        <Button
-          title={isLast ? "C'est parti 🎬" : "Suivant"}
-          size="lg"
-          fullWidth
-          iconRight={isLast ? undefined : <ArrowRight size={19} color={colors.primaryFg} />}
-          onPress={goNext}
-        />
+        <View style={{ width: "100%", maxWidth: 420 }}>
+          <Button
+            title={isLast ? "C'est parti 🎬" : "Suivant"}
+            size="lg"
+            fullWidth
+            iconRight={isLast ? undefined : <ArrowRight size={19} color={colors.primaryFg} />}
+            onPress={goNext}
+          />
+        </View>
       </View>
     </View>
   );

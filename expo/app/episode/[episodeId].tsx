@@ -20,7 +20,7 @@ import {
   X,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { ScrollView, TextInput, TouchableOpacity, View, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CoverAdjustModal } from "@/components/CoverAdjustModal";
 import { MediaGallery, MediaGrid } from "@/components/MediaGallery";
@@ -39,6 +39,7 @@ import { formatDate, formatDuration, normalizeTags } from "@/lib/format";
 import { pickCoverImage, pickFromLibrary, type PickedAsset } from "@/lib/media";
 import { enqueueEpisodeMedia } from "@/lib/uploadQueue";
 import { confirmAction } from "@/lib/confirm";
+import { CONTENT_WIDTH, useLayout } from "@/hooks/useLayout";
 import { usePendingUploadCount } from "@/hooks/useUploadQueue";
 import {
   applyMention,
@@ -75,6 +76,12 @@ import { CommentItem } from "@/components/episode/CommentItem";
 import { RevealedReviews } from "@/components/episode/RevealedReviews";
 
 
+/**
+ * Desktop: the left column (poster, title, likes) stays in view while the
+ * reviews and comments scroll. react-native-web passes `sticky` through to CSS.
+ */
+const stickyColumn = { position: "sticky", top: spacing.xl } as unknown as ViewStyle;
+
 /** A member as the "@" list shows them: a name to insert, a face, a role. */
 type MemberCandidate = MentionCandidate & { profile: Profile | null; role: MemberRole };
 
@@ -82,6 +89,7 @@ export default function EpisodeDetailScreen() {
   const { episodeId } = useLocalSearchParams<{ episodeId: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { wide, desktop } = useLayout();
   const toast = useToast();
   const { userId } = useAuth();
 
@@ -367,386 +375,422 @@ export default function EpisodeDetailScreen() {
     }
   };
 
-  return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: spacing.xxxl }} automaticallyAdjustKeyboardInsets>
-        {/* Hero gallery */}
-        <View>
-          <MediaGallery media={coverItem ? [coverItem] : []} height={380} />
-          <View style={{ position: "absolute", top: insets.top + 6, left: spacing.lg, right: spacing.lg, flexDirection: "row", justifyContent: "space-between" }}>
-            <IconButton icon={<ChevronLeft size={22} color="#fff" />} onPress={() => router.back()} size={42} style={{ backgroundColor: "rgba(0,0,0,0.45)" }} accessibilityLabel="Retour" />
-            {participate ? (
-              <IconButton
-                icon={<Camera size={20} color="#fff" />}
-                onPress={onPickCover}
-                size={42}
-                style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
-                accessibilityLabel={coverItem ? "Changer la photo de couverture" : "Ajouter une photo de couverture"}
-              />
-            ) : null}
-          </View>
-        </View>
+  const hero = (
+    <View style={wide ? { borderRadius: radius.xl, overflow: "hidden", borderWidth: 1, borderColor: colors.border } : undefined}>
+      <MediaGallery media={coverItem ? [coverItem] : []} height={desktop ? 560 : wide ? 420 : 380} />
+      <View style={{ position: "absolute", top: wide ? spacing.md : insets.top + 6, left: wide ? spacing.md : spacing.lg, right: wide ? spacing.md : spacing.lg, flexDirection: "row", justifyContent: "space-between" }}>
+        <IconButton icon={<ChevronLeft size={22} color="#fff" />} onPress={() => router.back()} size={42} style={{ backgroundColor: "rgba(0,0,0,0.45)" }} accessibilityLabel="Retour" />
+        {participate ? (
+          <IconButton
+            icon={<Camera size={20} color="#fff" />}
+            onPress={onPickCover}
+            size={42}
+            style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
+            accessibilityLabel={coverItem ? "Changer la photo de couverture" : "Ajouter une photo de couverture"}
+          />
+        ) : null}
+      </View>
+    </View>
+  );
 
-        <View style={{ paddingHorizontal: spacing.lg, gap: spacing.xxl, marginTop: spacing.xl }}>
-          {/* Meta */}
-          <FadeIn>
-            <View style={{ gap: spacing.sm }}>
-              <AppText variant="title">{episode.title}</AppText>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.md, flexWrap: "wrap" }}>
-                {episode.date ? <AppText variant="bodyMuted">{formatDate(episode.date)}</AppText> : null}
-                {episode.place ? (
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-                    <MapPin size={14} color={colors.textMuted} />
-                    <AppText variant="bodyMuted">{episode.place}</AppText>
+  const meta = (
+    <FadeIn>
+      <View style={{ gap: spacing.sm }}>
+        <AppText variant="title">{episode.title}</AppText>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.md, flexWrap: "wrap" }}>
+          {episode.date ? <AppText variant="bodyMuted">{formatDate(episode.date)}</AppText> : null}
+          {episode.place ? (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+              <MapPin size={14} color={colors.textMuted} />
+              <AppText variant="bodyMuted">{episode.place}</AppText>
+            </View>
+          ) : null}
+          {episode.duration ? (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+              <Clock size={14} color={colors.textMuted} />
+              <AppText variant="bodyMuted">{formatDuration(episode.duration)}</AppText>
+            </View>
+          ) : null}
+        </View>
+        {tags.length > 0 ? (
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
+            {tags.map((t) => (
+              <Badge key={t} label={t} tone="muted" />
+            ))}
+          </View>
+        ) : null}
+      </View>
+    </FadeIn>
+  );
+
+  // Like / comment counts
+  const counts = (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.xl }}>
+      <PressableScale
+        onPress={() => {
+          if (toggleLike.isPending) return;
+          toggleLike.mutate(likes?.liked ?? false, { onError: (e) => toast.error(friendlyError(e)) });
+        }} style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
+        <Heart size={22} color={likes?.liked ? colors.primary : colors.textMuted} fill={likes?.liked ? colors.primary : "transparent"} />
+        <AppText style={{ fontWeight: "700", color: likes?.liked ? colors.primary : colors.textMuted }}>{likes?.count ?? 0}</AppText>
+      </PressableScale>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
+        <MessageCircle size={21} color={colors.textMuted} />
+        <AppText style={{ fontWeight: "700", color: colors.textMuted }}>{comments?.length ?? 0}</AppText>
+      </View>
+    </View>
+  );
+
+  // Reviews, album, comments, delete.
+  const details = (
+    <>
+
+      {/* Reviews / private mechanic */}
+      <View style={{ gap: spacing.md }}>
+        <SectionHeader
+          title={revealed ? "Les reviews révélées" : "Reviews"}
+          subtitle={
+            !revealed
+              ? undefined
+              : episode.reviews_revealed_at
+              ? "Tout le monde a publié — voici ce que chacun a écrit"
+              : "Révélées par le déverrouillage de la saison"
+          }
+        />
+
+        {revealed ? (
+          reviewers.length === 0 ? (
+            <AppText variant="bodyMuted">Personne n&apos;a participé à cet épisode.</AppText>
+          ) : (
+            <RevealedReviews reviewers={reviewers} reviews={reviews ?? []} />
+          )
+        ) : (
+          <>
+            {/* My review status card */}
+            {participate ? (
+              myReview ? (
+                <Card glow style={{ gap: spacing.md }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                      <Lock size={16} color={colors.accent} />
+                      <AppText variant="h3">Ta review est scellée</AppText>
+                    </View>
+                    {myReview.rating ? <RatingStars value={myReview.rating} size={15} /> : null}
                   </View>
+                  <AppText variant="bodyMuted">
+                    {pendingCount === 1
+                      ? "Il ne manque plus qu'une review : dès qu'elle arrive, tout se révèle d'un coup."
+                      : pendingCount > 1
+                      ? `Encore ${pendingCount} reviews à écrire dans le groupe, puis tout se révèle d'un coup.`
+                      : "Elle se révélera en même temps que celles des autres."}
+                    {" Toi seul(e) peux la voir d'ici là."}
+                  </AppText>
+                  <Button title="Modifier ma review" variant="secondary" icon={<PenLine size={16} color={colors.text} />} onPress={() => router.push({ pathname: "/review/[episodeId]", params: { episodeId } })} />
+                </Card>
+              ) : (
+                alone ? (
+                  <Card glow style={{ gap: spacing.md, alignItems: "center" }}>
+                    <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
+                      <Users size={24} color={colors.primary} />
+                    </View>
+                    <AppText variant="h3" center>Les reviews se révèlent ensemble</AppText>
+                    <AppText variant="bodyMuted" center>
+                      Chacun écrit la sienne en secret, puis tout se dévoile d&apos;un coup… mais tu es seul(e) ici pour l&apos;instant. Invite ta bande pour jouer le jeu.
+                    </AppText>
+                    {isOwner(space?.membership) ? (
+                      <Button title="Inviter mon groupe" icon={<UserPlus size={18} color={colors.primaryFg} />} onPress={() => router.push({ pathname: "/space-members/[spaceId]", params: { spaceId } })} fullWidth />
+                    ) : null}
+                    <Button
+                      title="Écrire quand même"
+                      variant={isOwner(space?.membership) ? "ghost" : "primary"}
+                      onPress={() => router.push({ pathname: "/review/[episodeId]", params: { episodeId } })}
+                      fullWidth
+                    />
+                  </Card>
+                ) : (
+                <Pulse>
+                  <Card glow style={{ gap: spacing.md, alignItems: "center" }}>
+                    <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
+                      <PenLine size={24} color={colors.primary} />
+                    </View>
+                    <AppText variant="h3" center>Écris ta review en privé</AppText>
+                    <AppText variant="bodyMuted" center>
+                      {pendingCount === 1
+                        ? "Ce que tu ressens, ta note, ta citation préférée. Tu es la dernière personne à répondre : ta review révèle celles de tout le monde."
+                        : "Ce que tu ressens, ta note, ta citation préférée. Personne ne la verra tant que le groupe entier n'a pas publié la sienne."}
+                    </AppText>
+                    <Button title="Écrire ma review" onPress={() => router.push({ pathname: "/review/[episodeId]", params: { episodeId } })} fullWidth />
+                  </Card>
+                </Pulse>
+                )
+              )
+            ) : (
+              <Card style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+                <Lock size={18} color={colors.textMuted} />
+                <AppText variant="bodyMuted" style={{ flex: 1 }}>
+                  {isObserver
+                    ? "En tant qu'observateur, tu ne rédiges pas de review. Tu pourras commenter l'épisode une fois que tout le groupe aura publié la sienne."
+                    : "Tu pourras écrire ta review une fois promu."}
+                </AppText>
+              </Card>
+            )}
+
+            {/* Who answered — nothing to track with a single participant. */}
+            {reviewers.length > 1 ? (
+              <Card style={{ gap: spacing.md }}>
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                  <AppText variant="overline">Qui a déjà répondu</AppText>
+                  <AppText variant="caption">
+                    {reviewers.length - pendingCount}/{reviewers.length}
+                  </AppText>
+                </View>
+                {reviewers.map((member) => {
+                  const answered = answeredIds.has(member.user_id);
+                  return (
+                    <View key={member.user_id} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                      <Avatar profile={member.profile} size={30} />
+                      <AppText style={{ flex: 1, fontWeight: "600", color: colors.text }}>{member.profile?.name ?? "Membre"}</AppText>
+                      {answered ? (
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+                          <CheckCircle2 size={16} color={colors.success} />
+                          <AppText style={{ color: colors.success, fontWeight: "600", fontSize: 12.5 }}>A répondu</AppText>
+                        </View>
+                      ) : (
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+                          <Hourglass size={15} color={colors.textFaint} />
+                          <AppText style={{ color: colors.textFaint, fontWeight: "600", fontSize: 12.5 }}>En attente</AppText>
+                        </View>
+                      )}
+                    </View>
+                  );
+                })}
+                <AppText variant="caption">
+                  {pendingCount === 0
+                    ? "Tout le monde a répondu — la révélation arrive."
+                    : pendingCount === 1
+                    ? "Une review manque encore. La dernière publiée révèle toutes les autres."
+                    : `${pendingCount} reviews manquent encore. La dernière publiée révèle toutes les autres.`}
+                </AppText>
+                {pendingCount > 0 && reviewers.length - pendingCount > 0 ? (
+                  <AppText variant="caption">Les retardataires reçoivent deux rappels automatiques.</AppText>
                 ) : null}
-                {episode.duration ? (
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-                    <Clock size={14} color={colors.textMuted} />
-                    <AppText variant="bodyMuted">{formatDuration(episode.duration)}</AppText>
-                  </View>
+                {/* When someone will never write, the owner can open the episode
+                    anyway rather than leave everyone else's reviews sealed. */}
+                {isOwner(space?.membership) && pendingCount > 0 && reviewers.length - pendingCount > 0 ? (
+                  <Button
+                    title="Révéler maintenant"
+                    variant="secondary"
+                    loading={revealNow.isPending}
+                    onPress={() =>
+                      confirmAction(
+                        "Révéler cet épisode ?",
+                        `Les reviews déjà écrites seront visibles par tout l'espace, même s'il en manque ${pendingCount}.`,
+                        "Révéler",
+                        () =>
+                          revealNow.mutate(undefined, {
+                            onSuccess: () => toast.success("Épisode révélé ✨"),
+                            onError: (e) => toast.error(friendlyError(e)),
+                          }),
+                      )
+                    }
+                  />
                 ) : null}
+              </Card>
+            ) : null}
+          </>
+        )}
+      </View>
+
+      <Divider />
+
+      {/* Album — everything shot that day, cover included. Sits under the
+          reviews so the top of the screen stays the poster. */}
+      <View style={{ gap: spacing.md }}>
+        <SectionHeader
+          title={`Photos & vidéos${mediaCount > 0 ? ` · ${mediaCount}` : ""}`}
+          subtitle="La couverture, elle, ne bouge plus"
+        />
+        <MediaGrid
+          media={media}
+          emptyLabel={uploading > 0 ? "" : "Aucune photo ni vidéo pour l'instant."}
+          onDelete={canManage ? confirmDeleteMedia : undefined}
+        />
+        {participate ? (
+          <Button
+            title={mediaCount > 0 ? "Ajouter des photos ou vidéos" : "Ajouter les premières photos"}
+            variant="secondary"
+            icon={<ImagePlus size={18} color={colors.text} />}
+            onPress={onAddMedia}
+            fullWidth
+            style={{ marginTop: spacing.xs }}
+          />
+        ) : null}
+      </View>
+
+      <Divider />
+
+      {/* Comments */}
+      <View style={{ gap: spacing.lg }}>
+        <SectionHeader title={`Commentaires${commentCount > 0 ? ` · ${commentCount}` : ""}`} />
+
+        {comments && comments.length > 0 ? (
+          comments.map((c) => (
+            <CommentItem
+              key={c.id}
+              comment={c}
+              rootId={c.id}
+              meId={userId}
+              people={people}
+              canReply={canComment}
+              canModerate={isOwner(space?.membership)}
+              onReact={(commentId, emoji, active) => {
+                if (toggleReaction.isPending) return;
+                toggleReaction.mutate({ commentId, emoji, active }, { onError: (e) => toast.error(friendlyError(e)) });
+              }}
+              onDelete={confirmDeleteComment}
+              onReply={startReply}
+            />
+          ))
+        ) : (
+          <AppText variant="bodyMuted">Sois le premier à réagir à ce moment.</AppText>
+        )}
+
+        {canComment ? (
+          <View style={{ marginTop: spacing.sm }}>
+            {replyTo ? (
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.surface, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: 8, marginBottom: spacing.sm }}>
+                <CornerDownRight size={14} color={colors.primary} />
+                <AppText variant="caption" style={{ flex: 1 }}>
+                  Réponse à {replyTo.name}
+                </AppText>
+                <TouchableOpacity onPress={cancelReply} hitSlop={10} accessibilityRole="button" accessibilityLabel="Annuler la réponse">
+                  <X size={14} color={colors.textMuted} />
+                </TouchableOpacity>
               </View>
-              {tags.length > 0 ? (
-                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
-                  {tags.map((t) => (
-                    <Badge key={t} label={t} tone="muted" />
+            ) : null}
+
+            {/* The composer and its floating "@" list share this box so the
+                list can sit exactly on top of the input, whatever height the
+                text has grown to. */}
+            <View>
+              {suggestions.length > 0 ? (
+                <View
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    bottom: "100%",
+                    marginBottom: 8,
+                    zIndex: 30,
+                    elevation: 12,
+                    backgroundColor: colors.cardElevated,
+                    borderRadius: radius.lg,
+                    borderWidth: 1,
+                    borderColor: colors.borderStrong,
+                    overflow: "hidden",
+                  }}
+                >
+                  {suggestions.map((person, i) => (
+                    <TouchableOpacity
+                      key={person.id}
+                      onPress={() => chooseMention(person)}
+                      style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: 9, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Mentionner ${person.name}`}
+                    >
+                      <Avatar profile={person.profile} size={26} />
+                      <AppText style={{ flex: 1, fontSize: 14, fontWeight: "600", color: colors.text }} numberOfLines={1}>
+                        {person.name}
+                      </AppText>
+                      <RoleBadge role={person.role} />
+                    </TouchableOpacity>
                   ))}
                 </View>
               ) : null}
-            </View>
-          </FadeIn>
 
-          {/* Like / comment counts */}
-          <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.xl }}>
-            <PressableScale
-              onPress={() => {
-                if (toggleLike.isPending) return;
-                toggleLike.mutate(likes?.liked ?? false, { onError: (e) => toast.error(friendlyError(e)) });
-              }} style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
-              <Heart size={22} color={likes?.liked ? colors.primary : colors.textMuted} fill={likes?.liked ? colors.primary : "transparent"} />
-              <AppText style={{ fontWeight: "700", color: likes?.liked ? colors.primary : colors.textMuted }}>{likes?.count ?? 0}</AppText>
-            </PressableScale>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
-              <MessageCircle size={21} color={colors.textMuted} />
-              <AppText style={{ fontWeight: "700", color: colors.textMuted }}>{comments?.length ?? 0}</AppText>
-            </View>
-          </View>
-
-          <Divider />
-
-          {/* Reviews / private mechanic */}
-          <View style={{ gap: spacing.md }}>
-            <SectionHeader
-              title={revealed ? "Les reviews révélées" : "Reviews"}
-              subtitle={
-                !revealed
-                  ? undefined
-                  : episode.reviews_revealed_at
-                  ? "Tout le monde a publié — voici ce que chacun a écrit"
-                  : "Révélées par le déverrouillage de la saison"
-              }
-            />
-
-            {revealed ? (
-              reviewers.length === 0 ? (
-                <AppText variant="bodyMuted">Personne n&apos;a participé à cet épisode.</AppText>
-              ) : (
-                <RevealedReviews reviewers={reviewers} reviews={reviews ?? []} />
-              )
-            ) : (
-              <>
-                {/* My review status card */}
-                {participate ? (
-                  myReview ? (
-                    <Card glow style={{ gap: spacing.md }}>
-                      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                          <Lock size={16} color={colors.accent} />
-                          <AppText variant="h3">Ta review est scellée</AppText>
-                        </View>
-                        {myReview.rating ? <RatingStars value={myReview.rating} size={15} /> : null}
-                      </View>
-                      <AppText variant="bodyMuted">
-                        {pendingCount === 1
-                          ? "Il ne manque plus qu'une review : dès qu'elle arrive, tout se révèle d'un coup."
-                          : pendingCount > 1
-                          ? `Encore ${pendingCount} reviews à écrire dans le groupe, puis tout se révèle d'un coup.`
-                          : "Elle se révélera en même temps que celles des autres."}
-                        {" Toi seul(e) peux la voir d'ici là."}
-                      </AppText>
-                      <Button title="Modifier ma review" variant="secondary" icon={<PenLine size={16} color={colors.text} />} onPress={() => router.push({ pathname: "/review/[episodeId]", params: { episodeId } })} />
-                    </Card>
-                  ) : (
-                    alone ? (
-                      <Card glow style={{ gap: spacing.md, alignItems: "center" }}>
-                        <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
-                          <Users size={24} color={colors.primary} />
-                        </View>
-                        <AppText variant="h3" center>Les reviews se révèlent ensemble</AppText>
-                        <AppText variant="bodyMuted" center>
-                          Chacun écrit la sienne en secret, puis tout se dévoile d&apos;un coup… mais tu es seul(e) ici pour l&apos;instant. Invite ta bande pour jouer le jeu.
-                        </AppText>
-                        {isOwner(space?.membership) ? (
-                          <Button title="Inviter mon groupe" icon={<UserPlus size={18} color={colors.primaryFg} />} onPress={() => router.push({ pathname: "/space-members/[spaceId]", params: { spaceId } })} fullWidth />
-                        ) : null}
-                        <Button
-                          title="Écrire quand même"
-                          variant={isOwner(space?.membership) ? "ghost" : "primary"}
-                          onPress={() => router.push({ pathname: "/review/[episodeId]", params: { episodeId } })}
-                          fullWidth
-                        />
-                      </Card>
-                    ) : (
-                    <Pulse>
-                      <Card glow style={{ gap: spacing.md, alignItems: "center" }}>
-                        <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
-                          <PenLine size={24} color={colors.primary} />
-                        </View>
-                        <AppText variant="h3" center>Écris ta review en privé</AppText>
-                        <AppText variant="bodyMuted" center>
-                          {pendingCount === 1
-                            ? "Ce que tu ressens, ta note, ta citation préférée. Tu es la dernière personne à répondre : ta review révèle celles de tout le monde."
-                            : "Ce que tu ressens, ta note, ta citation préférée. Personne ne la verra tant que le groupe entier n'a pas publié la sienne."}
-                        </AppText>
-                        <Button title="Écrire ma review" onPress={() => router.push({ pathname: "/review/[episodeId]", params: { episodeId } })} fullWidth />
-                      </Card>
-                    </Pulse>
-                    )
-                  )
-                ) : (
-                  <Card style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
-                    <Lock size={18} color={colors.textMuted} />
-                    <AppText variant="bodyMuted" style={{ flex: 1 }}>
-                      {isObserver
-                        ? "En tant qu'observateur, tu ne rédiges pas de review. Tu pourras commenter l'épisode une fois que tout le groupe aura publié la sienne."
-                        : "Tu pourras écrire ta review une fois promu."}
-                    </AppText>
-                  </Card>
-                )}
-
-                {/* Who answered — nothing to track with a single participant. */}
-                {reviewers.length > 1 ? (
-                  <Card style={{ gap: spacing.md }}>
-                    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                      <AppText variant="overline">Qui a déjà répondu</AppText>
-                      <AppText variant="caption">
-                        {reviewers.length - pendingCount}/{reviewers.length}
-                      </AppText>
-                    </View>
-                    {reviewers.map((member) => {
-                      const answered = answeredIds.has(member.user_id);
-                      return (
-                        <View key={member.user_id} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                          <Avatar profile={member.profile} size={30} />
-                          <AppText style={{ flex: 1, fontWeight: "600", color: colors.text }}>{member.profile?.name ?? "Membre"}</AppText>
-                          {answered ? (
-                            <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-                              <CheckCircle2 size={16} color={colors.success} />
-                              <AppText style={{ color: colors.success, fontWeight: "600", fontSize: 12.5 }}>A répondu</AppText>
-                            </View>
-                          ) : (
-                            <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-                              <Hourglass size={15} color={colors.textFaint} />
-                              <AppText style={{ color: colors.textFaint, fontWeight: "600", fontSize: 12.5 }}>En attente</AppText>
-                            </View>
-                          )}
-                        </View>
-                      );
-                    })}
-                    <AppText variant="caption">
-                      {pendingCount === 0
-                        ? "Tout le monde a répondu — la révélation arrive."
-                        : pendingCount === 1
-                        ? "Une review manque encore. La dernière publiée révèle toutes les autres."
-                        : `${pendingCount} reviews manquent encore. La dernière publiée révèle toutes les autres.`}
-                    </AppText>
-                    {pendingCount > 0 && reviewers.length - pendingCount > 0 ? (
-                      <AppText variant="caption">Les retardataires reçoivent deux rappels automatiques.</AppText>
-                    ) : null}
-                    {/* When someone will never write, the owner can open the episode
-                        anyway rather than leave everyone else's reviews sealed. */}
-                    {isOwner(space?.membership) && pendingCount > 0 && reviewers.length - pendingCount > 0 ? (
-                      <Button
-                        title="Révéler maintenant"
-                        variant="secondary"
-                        loading={revealNow.isPending}
-                        onPress={() =>
-                          confirmAction(
-                            "Révéler cet épisode ?",
-                            `Les reviews déjà écrites seront visibles par tout l'espace, même s'il en manque ${pendingCount}.`,
-                            "Révéler",
-                            () =>
-                              revealNow.mutate(undefined, {
-                                onSuccess: () => toast.success("Épisode révélé ✨"),
-                                onError: (e) => toast.error(friendlyError(e)),
-                              }),
-                          )
-                        }
-                      />
-                    ) : null}
-                  </Card>
-                ) : null}
-              </>
-            )}
-          </View>
-
-          <Divider />
-
-          {/* Album — everything shot that day, cover included. Sits under the
-              reviews so the top of the screen stays the poster. */}
-          <View style={{ gap: spacing.md }}>
-            <SectionHeader
-              title={`Photos & vidéos${mediaCount > 0 ? ` · ${mediaCount}` : ""}`}
-              subtitle="La couverture, elle, ne bouge plus"
-            />
-            <MediaGrid
-              media={media}
-              emptyLabel={uploading > 0 ? "" : "Aucune photo ni vidéo pour l'instant."}
-              onDelete={canManage ? confirmDeleteMedia : undefined}
-            />
-            {participate ? (
-              <Button
-                title={mediaCount > 0 ? "Ajouter des photos ou vidéos" : "Ajouter les premières photos"}
-                variant="secondary"
-                icon={<ImagePlus size={18} color={colors.text} />}
-                onPress={onAddMedia}
-                fullWidth
-                style={{ marginTop: spacing.xs }}
-              />
-            ) : null}
-          </View>
-
-          <Divider />
-
-          {/* Comments */}
-          <View style={{ gap: spacing.lg }}>
-            <SectionHeader title={`Commentaires${commentCount > 0 ? ` · ${commentCount}` : ""}`} />
-
-            {comments && comments.length > 0 ? (
-              comments.map((c) => (
-                <CommentItem
-                  key={c.id}
-                  comment={c}
-                  rootId={c.id}
-                  meId={userId}
-                  people={people}
-                  canReply={canComment}
-                  canModerate={isOwner(space?.membership)}
-                  onReact={(commentId, emoji, active) => {
-                    if (toggleReaction.isPending) return;
-                    toggleReaction.mutate({ commentId, emoji, active }, { onError: (e) => toast.error(friendlyError(e)) });
-                  }}
-                  onDelete={confirmDeleteComment}
-                  onReply={startReply}
+              <View style={{ flexDirection: "row", alignItems: "flex-end", gap: spacing.sm }}>
+                <TextInput
+                  ref={draftGrow.ref}
+                  value={draft}
+                  onChangeText={onChangeDraft}
+                  onSelectionChange={(e) => setCaret(e.nativeEvent.selection.end)}
+                  placeholder={replyTo ? `Répondre à ${replyTo.name}…` : "Ajouter un commentaire… (@ pour mentionner)"}
+                  placeholderTextColor={colors.textFaint}
+                  onSubmitEditing={onSendComment}
+                  onFocus={() => setDraftFocused(true)}
+                  onBlur={() => setDraftFocused(false)}
+                  onContentSizeChange={draftGrow.onContentSizeChange}
+                  returnKeyType="send"
+                  multiline
+                  textAlignVertical="top"
+                  style={[{ flex: 1, color: colors.text, fontSize: 15, backgroundColor: colors.bgElevated, borderRadius: radius.xl, borderWidth: 1.5, borderColor: replyTo ? colors.primary : draftFocused ? colors.focus : colors.border, paddingHorizontal: spacing.lg, paddingTop: 12, paddingBottom: 12, minHeight: draftGrow.minHeight, height: draftGrow.height }, noWebOutline]}
                 />
-              ))
-            ) : (
-              <AppText variant="bodyMuted">Sois le premier à réagir à ce moment.</AppText>
-            )}
-
-            {canComment ? (
-              <View style={{ marginTop: spacing.sm }}>
-                {replyTo ? (
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.surface, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: 8, marginBottom: spacing.sm }}>
-                    <CornerDownRight size={14} color={colors.primary} />
-                    <AppText variant="caption" style={{ flex: 1 }}>
-                      Réponse à {replyTo.name}
-                    </AppText>
-                    <TouchableOpacity onPress={cancelReply} hitSlop={10} accessibilityRole="button" accessibilityLabel="Annuler la réponse">
-                      <X size={14} color={colors.textMuted} />
-                    </TouchableOpacity>
-                  </View>
-                ) : null}
-
-                {/* The composer and its floating "@" list share this box so the
-                    list can sit exactly on top of the input, whatever height the
-                    text has grown to. */}
-                <View>
-                  {suggestions.length > 0 ? (
-                    <View
-                      style={{
-                        position: "absolute",
-                        left: 0,
-                        right: 0,
-                        bottom: "100%",
-                        marginBottom: 8,
-                        zIndex: 30,
-                        elevation: 12,
-                        backgroundColor: colors.cardElevated,
-                        borderRadius: radius.lg,
-                        borderWidth: 1,
-                        borderColor: colors.borderStrong,
-                        overflow: "hidden",
-                      }}
-                    >
-                      {suggestions.map((person, i) => (
-                        <TouchableOpacity
-                          key={person.id}
-                          onPress={() => chooseMention(person)}
-                          style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: 9, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: colors.border }}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Mentionner ${person.name}`}
-                        >
-                          <Avatar profile={person.profile} size={26} />
-                          <AppText style={{ flex: 1, fontSize: 14, fontWeight: "600", color: colors.text }} numberOfLines={1}>
-                            {person.name}
-                          </AppText>
-                          <RoleBadge role={person.role} />
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  ) : null}
-
-                  <View style={{ flexDirection: "row", alignItems: "flex-end", gap: spacing.sm }}>
-                    <TextInput
-                      ref={draftGrow.ref}
-                      value={draft}
-                      onChangeText={onChangeDraft}
-                      onSelectionChange={(e) => setCaret(e.nativeEvent.selection.end)}
-                      placeholder={replyTo ? `Répondre à ${replyTo.name}…` : "Ajouter un commentaire… (@ pour mentionner)"}
-                      placeholderTextColor={colors.textFaint}
-                      onSubmitEditing={onSendComment}
-                      onFocus={() => setDraftFocused(true)}
-                      onBlur={() => setDraftFocused(false)}
-                      onContentSizeChange={draftGrow.onContentSizeChange}
-                      returnKeyType="send"
-                      multiline
-                      textAlignVertical="top"
-                      style={[{ flex: 1, color: colors.text, fontSize: 15, backgroundColor: colors.bgElevated, borderRadius: radius.xl, borderWidth: 1.5, borderColor: replyTo ? colors.primary : draftFocused ? colors.focus : colors.border, paddingHorizontal: spacing.lg, paddingTop: 12, paddingBottom: 12, minHeight: draftGrow.minHeight, height: draftGrow.height }, noWebOutline]}
-                    />
-                    <IconButton icon={<Send size={18} color={colors.primaryFg} />} variant="primary" onPress={onSendComment} accessibilityLabel="Envoyer le commentaire" />
-                  </View>
-                </View>
+                <IconButton icon={<Send size={18} color={colors.primaryFg} />} variant="primary" onPress={onSendComment} accessibilityLabel="Envoyer le commentaire" />
               </View>
-            ) : isObserver ? (
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: spacing.sm }}>
-                <Sparkles size={15} color={colors.textFaint} />
-                <AppText variant="caption" style={{ flex: 1 }}>
-                  {pendingCount === 1
-                    ? "Il manque encore une review : dès qu'elle arrive, tu pourras commenter. En attendant, tu peux réagir aux commentaires existants."
-                    : pendingCount > 1
-                    ? `Il manque encore ${pendingCount} reviews : dès que le groupe a terminé, tu pourras commenter. En attendant, tu peux réagir aux commentaires existants.`
-                    : "Tu pourras commenter dès que le groupe aura publié ses reviews. En attendant, tu peux réagir aux commentaires existants."}
-                </AppText>
-              </View>
-            ) : null}
+            </View>
           </View>
+        ) : isObserver ? (
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: spacing.sm }}>
+            <Sparkles size={15} color={colors.textFaint} />
+            <AppText variant="caption" style={{ flex: 1 }}>
+              {pendingCount === 1
+                ? "Il manque encore une review : dès qu'elle arrive, tu pourras commenter. En attendant, tu peux réagir aux commentaires existants."
+                : pendingCount > 1
+                ? `Il manque encore ${pendingCount} reviews : dès que le groupe a terminé, tu pourras commenter. En attendant, tu peux réagir aux commentaires existants.`
+                : "Tu pourras commenter dès que le groupe aura publié ses reviews. En attendant, tu peux réagir aux commentaires existants."}
+            </AppText>
+          </View>
+        ) : null}
+      </View>
 
-          {canManage ? (
-            <>
+      {canManage ? (
+        <>
+          <Divider />
+          <Button
+            title="Supprimer l'épisode"
+            variant="destructive"
+            icon={<Trash2 size={17} color="#fff" />}
+            onPress={confirmDeleteEpisode}
+            loading={deleteEpisode.isPending}
+            fullWidth
+          />
+        </>
+      ) : null}
+    </>
+  );
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        automaticallyAdjustKeyboardInsets
+        contentContainerStyle={[
+          { paddingBottom: spacing.xxxl },
+          // Wide web: a centered page. Desktop: poster and facts on the left,
+          // everything people write on the right.
+          wide ? { width: "100%", maxWidth: desktop ? CONTENT_WIDTH.page : CONTENT_WIDTH.reading, alignSelf: "center", paddingHorizontal: spacing.xxxl, paddingTop: spacing.xl } : null,
+        ]}
+      >
+        {desktop ? (
+          <View style={{ flexDirection: "row", alignItems: "flex-start", gap: spacing.xxxl }}>
+            <View style={[{ width: 440, gap: spacing.xl }, stickyColumn]}>
+              {hero}
+              {meta}
+              {counts}
+            </View>
+            <View style={{ flex: 1, minWidth: 0, gap: spacing.xxl }}>{details}</View>
+          </View>
+        ) : (
+          <>
+            {hero}
+            <View style={{ paddingHorizontal: wide ? 0 : spacing.lg, gap: spacing.xxl, marginTop: spacing.xl }}>
+              {meta}
+              {counts}
               <Divider />
-              <Button
-                title="Supprimer l'épisode"
-                variant="destructive"
-                icon={<Trash2 size={17} color="#fff" />}
-                onPress={confirmDeleteEpisode}
-                loading={deleteEpisode.isPending}
-                fullWidth
-              />
-            </>
-          ) : null}
-        </View>
+              {details}
+            </View>
+          </>
+        )}
       </ScrollView>
 
       <CoverAdjustModal

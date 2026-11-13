@@ -33,7 +33,7 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />}>
+    <Screen scroll width="reading" contentStyle={{ paddingHorizontal: spacing.lg }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />}>
       <AppHeader
         title="Notifications"
         style={{ paddingHorizontal: 0 }}

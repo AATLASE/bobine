@@ -49,7 +49,7 @@ export default function JoinScreen() {
   };
 
   return (
-    <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }}>
+    <Screen scroll dialog contentStyle={{ paddingHorizontal: spacing.lg }}>
       <View style={{ alignItems: "flex-end", paddingTop: spacing.sm }}>
         <IconButton icon={<X size={20} color={colors.text} />} onPress={() => router.back()} size={40} accessibilityLabel="Fermer" />
       </View>

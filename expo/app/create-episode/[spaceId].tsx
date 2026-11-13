@@ -114,7 +114,7 @@ export default function CreateEpisodeScreen() {
 
   if (space && !canParticipate(space.membership)) {
     return (
-      <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }}>
+      <Screen scroll dialog contentStyle={{ paddingHorizontal: spacing.lg }}>
         <View style={{ alignItems: "flex-end", paddingTop: spacing.sm }}>
           <IconButton icon={<X size={20} color={colors.text} />} onPress={() => router.back()} size={40} accessibilityLabel="Fermer" />
         </View>
@@ -134,7 +134,7 @@ export default function CreateEpisodeScreen() {
   }
 
   return (
-    <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }}>
+    <Screen scroll dialog contentStyle={{ paddingHorizontal: spacing.lg }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: spacing.sm, marginBottom: spacing.lg }}>
         <View style={{ flex: 1, gap: 2 }}>
           <AppText variant="title">Nouvel épisode</AppText>

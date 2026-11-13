@@ -140,7 +140,11 @@ export function MediaGrid({
 export function MediaGallery({ media, height = 360, emoji = "🎬" }: { media: EpisodeMedia[]; height?: number; emoji?: string }) {
   const [index, setIndex] = useState<number>(0);
   const [viewer, setViewer] = useState<number | null>(null);
-  const { width } = useWindowDimensions();
+  const window = useWindowDimensions();
+  // Pages are as wide as the gallery itself, which is narrower than the window
+  // in the desktop two-column layout. Starts at the window width (the phone case).
+  const [measured, setMeasured] = useState<number>(0);
+  const width = measured || window.width;
 
   if (!media || media.length === 0) {
     return (
@@ -155,7 +159,7 @@ export function MediaGallery({ media, height = 360, emoji = "🎬" }: { media: E
   };
 
   return (
-    <View style={{ height }}>
+    <View style={{ height }} onLayout={(e) => setMeasured(Math.round(e.nativeEvent.layout.width))}>
       <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={onScroll}>
         {media.map((m, i) => (
           <Pressable key={m.id} onPress={() => setViewer(i)} style={{ width, height }}>

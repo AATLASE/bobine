@@ -64,7 +64,7 @@ export default function SpaceSettingsScreen() {
 
   if (!isOwner(space.membership)) {
     return (
-      <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }}>
+      <Screen scroll dialog contentStyle={{ paddingHorizontal: spacing.lg }}>
         <View style={{ alignItems: "flex-end", paddingTop: spacing.sm }}>
           <IconButton icon={<X size={20} color={colors.text} />} onPress={() => router.back()} size={40} accessibilityLabel="Fermer" />
         </View>
@@ -133,7 +133,7 @@ export default function SpaceSettingsScreen() {
   const coverPreview = newCover?.uri ?? space.cover_url;
 
   return (
-    <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }}>
+    <Screen scroll dialog contentStyle={{ paddingHorizontal: spacing.lg }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: spacing.sm, marginBottom: spacing.lg }}>
         <AppText variant="title">Paramètres</AppText>
         <IconButton icon={<X size={20} color={colors.text} />} onPress={() => router.back()} size={40} accessibilityLabel="Fermer" />

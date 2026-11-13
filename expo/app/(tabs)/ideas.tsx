@@ -75,7 +75,7 @@ export default function IdeasScreen() {
 
   if (hasNoSpace || !space) {
     return (
-      <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }}>
+      <Screen scroll width="reading" contentStyle={{ paddingHorizontal: spacing.lg }}>
         <SpaceSwitcher />
         <NoSpaceState
           icon={<Lightbulb size={30} color={colors.primary} />}
@@ -87,7 +87,7 @@ export default function IdeasScreen() {
   }
 
   return (
-    <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />}>
+    <Screen scroll width="reading" contentStyle={{ paddingHorizontal: spacing.lg }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />}>
       <SpaceSwitcher />
 
       <SectionHeader

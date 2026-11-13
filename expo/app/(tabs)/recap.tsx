@@ -87,7 +87,7 @@ export default function RecapScreen() {
 
   if (hasNoSpace || !space) {
     return (
-      <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }}>
+      <Screen scroll width="reading" contentStyle={{ paddingHorizontal: spacing.lg }}>
         <SpaceSwitcher />
         <NoSpaceState
           icon={<Sparkles size={30} color={colors.primary} />}
@@ -124,7 +124,7 @@ export default function RecapScreen() {
   const summary = extractSummary(synthese);
 
   return (
-    <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />}>
+    <Screen scroll width="reading" contentStyle={{ paddingHorizontal: spacing.lg }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />}>
       <SpaceSwitcher />
 
       <SectionHeader title="Bilan de saison" subtitle="Ce que chacun a pensé, révélé d'un coup" />

@@ -181,7 +181,7 @@ export default function ReviewScreen() {
   };
 
   return (
-    <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }}>
+    <Screen scroll dialog onDismiss={closeWithGuard} contentStyle={{ paddingHorizontal: spacing.lg }}>
       <Stack.Screen options={{ gestureEnabled: !dirty }} />
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: spacing.sm, marginBottom: spacing.lg }}>
         <View style={{ flex: 1, gap: 2 }}>

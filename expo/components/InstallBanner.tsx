@@ -9,6 +9,7 @@ import { Button, IconButton } from "@/components/ui/Button";
 import { AppText } from "@/components/ui/Text";
 import { colors, radius, shadows, spacing } from "@/constants/theme";
 import { getInstallPath, promptInstall, subscribeInstall, type InstallPath } from "@/lib/pwa";
+import { useLayout } from "@/hooks/useLayout";
 import { useToast } from "@/providers/toast";
 
 const SNOOZE_KEY = "gather.install-banner.snoozed-at";
@@ -58,6 +59,7 @@ function Step({ icon, title, hint }: { icon: React.ReactNode; title: string; hin
 export function InstallBanner() {
   const segments = useSegments();
   const insets = useSafeAreaInsets();
+  const { wide } = useLayout();
   const { success: toastSuccess } = useToast();
 
   const [path, setPath] = useState<InstallPath | null>(() => getInstallPath());
@@ -109,7 +111,8 @@ export function InstallBanner() {
   };
 
   const translateY = anim.interpolate({ inputRange: [0, 1], outputRange: [24, 0] });
-  const bottom = insets.bottom + spacing.md + (segments[0] === "(tabs)" ? TAB_BAR_HEIGHT : 0);
+  // The bottom tab bar only exists on narrow screens; wide ones have a side navigation.
+  const bottom = insets.bottom + spacing.md + (segments[0] === "(tabs)" && !wide ? TAB_BAR_HEIGHT : 0);
 
   let actionLabel = path === "in-app" ? "Comment ?" : "Installer";
   if (expanded) actionLabel = "Masquer";

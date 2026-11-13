@@ -3,7 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ChevronRight, Clapperboard, LayoutGrid, Lock, PenLine, Plus, Rows3, Settings, Sparkles } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
-import { Dimensions, RefreshControl, View } from "react-native";
+import { RefreshControl, View, useWindowDimensions } from "react-native";
 import { EpisodePoster, EpisodeRow } from "@/components/EpisodeCard";
 import { NoSpaceState } from "@/components/NoSpaceState";
 import { SpaceSwitcher } from "@/components/SpaceSwitcher";
@@ -18,6 +18,7 @@ import { colors, radius, shadows, spacing } from "@/constants/theme";
 import { formatDateShort, getSeasonStatus, type SeasonStatus } from "@/lib/format";
 import { canParticipate, isOwner, reviewersOf, reviewProgress, type ReviewProgress } from "@/lib/types";
 import { useEpisodes } from "@/hooks/useEpisodes";
+import { useLayout } from "@/hooks/useLayout";
 import { useMembers } from "@/hooks/useMembers";
 import { useSpaceReviewAuthors } from "@/hooks/useReviews";
 import { useActiveSpace } from "@/providers/activeSpace";
@@ -25,8 +26,13 @@ import { useAuth } from "@/providers/auth";
 
 type ViewMode = "grid" | "timeline";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const CARD_WIDTH = (SCREEN_WIDTH - spacing.lg * 2 - spacing.md) / 2;
+/** Poster columns for a given grid width: two on phones, up to five on desktop. */
+function columnsFor(width: number): number {
+  if (width >= 1000) return 5;
+  if (width >= 760) return 4;
+  if (width >= 520) return 3;
+  return 2;
+}
 
 const VIEW_MODES = [
   { value: "grid" as const, label: "Grille", icon: LayoutGrid, accessibilityLabel: "Affichage en grille" },
@@ -88,6 +94,12 @@ export default function MomentsScreen() {
   const { data: members } = useMembers(spaceId);
   const { data: reviewAuthors } = useSpaceReviewAuthors(spaceId);
   const [mode, setMode] = useState<ViewMode>("grid");
+  const { wide, desktop } = useLayout();
+  const window = useWindowDimensions();
+  // Measured on layout; the first frame assumes the phone padding so phones never re-flow.
+  const [gridWidth, setGridWidth] = useState<number>(window.width - spacing.lg * 2);
+  const columns = columnsFor(gridWidth);
+  const cardWidth = Math.floor((gridWidth - spacing.md * (columns - 1)) / columns);
 
   const seasonUnlocked = !!space?.season_unlocked;
   // Nothing until the authors are known: every card would say "À toi" for a beat.
@@ -147,12 +159,12 @@ export default function MomentsScreen() {
     >
       <SpaceSwitcher />
 
-      <View style={{ gap: spacing.md }}>
+      <View style={{ gap: spacing.md, flexDirection: desktop && space.cover_url ? "row" : "column", alignItems: desktop ? "stretch" : undefined }}>
         {/* The cover only when there is a real photo: an empty gradient pushed
             the episodes below the fold, and the name is already in the header. */}
         {space.cover_url ? (
-          <FadeIn>
-            <View style={[{ height: 150, borderRadius: radius.xl, overflow: "hidden", backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }, shadows.poster]}>
+          <FadeIn style={desktop ? { flex: 1.35 } : undefined}>
+            <View style={[{ height: desktop ? "100%" : wide ? 200 : 150, minHeight: 150, borderRadius: radius.xl, overflow: "hidden", backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }, shadows.poster]}>
               <Image source={{ uri: space.cover_url }} style={{ position: "absolute", width: "100%", height: "100%" }} contentFit="cover" transition={250} />
               {space.description ? (
                 <>
@@ -167,8 +179,8 @@ export default function MomentsScreen() {
         ) : null}
 
         {/* Season, group and settings in one compact band. */}
-        <FadeIn delay={40}>
-          <Card style={{ gap: spacing.md, paddingVertical: spacing.md }}>
+        <FadeIn delay={40} style={desktop && space.cover_url ? { flex: 1 } : undefined}>
+          <Card style={{ gap: spacing.md, paddingVertical: spacing.md, flexGrow: 1, justifyContent: "center" }}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
               <View style={{ flex: 1, gap: 2 }}>
                 <AppText style={{ fontWeight: "700", fontSize: 14.5, color: colors.text }}>{seasonLine(status)}</AppText>
@@ -225,7 +237,7 @@ export default function MomentsScreen() {
           </Card>
         </FadeIn>
 
-        {oldestWaiting ? (
+        {oldestWaiting && !(desktop && space.cover_url) ? (
           <ReviewWaitingBanner
             title={oldestWaiting.title}
             others={waiting.length - 1}
@@ -234,8 +246,19 @@ export default function MomentsScreen() {
         ) : null}
       </View>
 
+      {/* On desktop the banner sits under the cover + season row instead of inside it. */}
+      {oldestWaiting && desktop && space.cover_url ? (
+        <View style={{ marginTop: spacing.md }}>
+          <ReviewWaitingBanner
+            title={oldestWaiting.title}
+            others={waiting.length - 1}
+            onPress={() => router.push({ pathname: "/review/[episodeId]", params: { episodeId: oldestWaiting.id } })}
+          />
+        </View>
+      ) : null}
+
       {/* Episodes */}
-      <View style={{ marginTop: spacing.xl }}>
+      <View style={{ marginTop: spacing.xl }} onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}>
         <SectionHeader
           title={`Vos épisodes${episodes && episodes.length > 0 ? ` · ${episodes.length}` : ""}`}
           action={episodes && episodes.length > 0 ? <SegmentedToggle<ViewMode> options={VIEW_MODES} value={mode} onChange={setMode} /> : undefined}
@@ -254,13 +277,15 @@ export default function MomentsScreen() {
         ) : mode === "grid" ? (
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing.md }}>
             {episodes.map((ep, i) => (
-              <EpisodePoster key={ep.id} episode={ep} progress={progressById?.get(ep.id)} width={CARD_WIDTH} index={i} onPress={() => openEpisode(ep.id)} />
+              <EpisodePoster key={ep.id} episode={ep} progress={progressById?.get(ep.id)} width={cardWidth} index={i} onPress={() => openEpisode(ep.id)} />
             ))}
           </View>
         ) : (
-          <View style={{ gap: spacing.md }}>
+          <View style={{ gap: spacing.md, flexDirection: desktop ? "row" : "column", flexWrap: "wrap" }}>
             {episodes.map((ep, i) => (
-              <EpisodeRow key={ep.id} episode={ep} progress={progressById?.get(ep.id)} index={i} onPress={() => openEpisode(ep.id)} />
+              <View key={ep.id} style={desktop ? { width: (gridWidth - spacing.md) / 2 } : undefined}>
+                <EpisodeRow episode={ep} progress={progressById?.get(ep.id)} index={i} onPress={() => openEpisode(ep.id)} />
+              </View>
             ))}
           </View>
         )}
@@ -270,7 +295,7 @@ export default function MomentsScreen() {
             title="Nouvel épisode"
             icon={<Plus size={18} color={colors.primaryFg} />}
             onPress={create}
-            style={{ marginTop: spacing.xl }}
+            style={{ marginTop: spacing.xl, alignSelf: wide ? "flex-start" : undefined }}
           />
         ) : null}
       </View>

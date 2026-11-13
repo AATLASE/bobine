@@ -17,6 +17,7 @@ import { registerServiceWorker } from "@/lib/pwa";
 import { queryClient } from "@/lib/queryClient";
 import { establishRecoverySession, isRecoveryUrl } from "@/lib/passwordReset";
 import { captureInviteFromWebUrl, setPendingInvite } from "@/lib/pendingInvite";
+import { useLayout } from "@/hooks/useLayout";
 import { useRedeemPendingInvite } from "@/hooks/useRedeemPendingInvite";
 import { startUploadQueue } from "@/lib/uploadQueue";
 import { ActiveSpaceProvider } from "@/providers/activeSpace";
@@ -32,6 +33,12 @@ captureInviteFromWebUrl();
 function RootNav() {
   const { isAuthenticated, initializing, recoveryMode, enterRecoveryMode } = useAuth();
   const { resolved } = useThemeMode();
+  const { wide } = useLayout();
+  // Modal flows: a sheet on phones, a dialog over the current page on wide web
+  // screens (the screens render their panel through <Screen dialog>).
+  const modal = wide
+    ? ({ presentation: "transparentModal", animation: "fade", contentStyle: { backgroundColor: "transparent" } } as const)
+    : ({ presentation: "modal" } as const);
   const segments = useSegments();
   const router = useRouter();
   const [splashVisible, setSplashVisible] = useState<boolean>(true);
@@ -106,14 +113,14 @@ function RootNav() {
         {/* Redirect shims keeping pre-tabs deep links and notification URLs alive. */}
         <Stack.Screen name="space/[id]/index" options={{ animation: "none" }} />
         <Stack.Screen name="space/[id]/[...rest]" options={{ animation: "none" }} />
-        <Stack.Screen name="space-settings/[spaceId]" options={{ presentation: "modal" }} />
+        <Stack.Screen name="space-settings/[spaceId]" options={modal} />
         <Stack.Screen name="space-members/[spaceId]" />
         <Stack.Screen name="episode/[episodeId]" />
         <Stack.Screen name="notifications" />
-        <Stack.Screen name="create-space" options={{ presentation: "modal" }} />
-        <Stack.Screen name="join" options={{ presentation: "modal" }} />
-        <Stack.Screen name="review/[episodeId]" options={{ presentation: "modal" }} />
-        <Stack.Screen name="create-episode/[spaceId]" options={{ presentation: "modal" }} />
+        <Stack.Screen name="create-space" options={modal} />
+        <Stack.Screen name="join" options={modal} />
+        <Stack.Screen name="review/[episodeId]" options={modal} />
+        <Stack.Screen name="create-episode/[spaceId]" options={modal} />
       </Stack>
       {/* After the splash, so the offer never competes with the brand moment. */}
       {splashVisible ? null : <InstallBanner />}

@@ -3,7 +3,9 @@ import { Clapperboard, Lightbulb, Sparkles, User } from "lucide-react-native";
 import React from "react";
 import { Platform, View } from "react-native";
 import Landing from "@/components/landing/Landing";
+import { SideNav } from "@/components/SideNav";
 import { colors } from "@/constants/theme";
+import { useLayout } from "@/hooks/useLayout";
 import { useAuth } from "@/providers/auth";
 
 /**
@@ -21,6 +23,7 @@ import { useAuth } from "@/providers/auth";
  */
 export default function RootTabsLayout() {
   const { isAuthenticated, initializing } = useAuth();
+  const { wide, desktop } = useLayout();
 
   if (Platform.OS === "web" && !isAuthenticated) {
     return initializing ? <View style={{ flex: 1, backgroundColor: colors.bg }} /> : <Landing />;
@@ -28,7 +31,10 @@ export default function RootTabsLayout() {
 
   return (
     <Tabs
+      // Wide web screens get a side navigation instead of the bottom bar.
+      tabBar={wide ? (props) => <SideNav {...props} compact={!desktop} /> : undefined}
       screenOptions={{
+        tabBarPosition: wide ? "left" : "bottom",
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,

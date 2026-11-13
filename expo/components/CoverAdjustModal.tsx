@@ -51,9 +51,12 @@ export function CoverAdjustModal({ asset, title = "Ajuster la couverture", shape
   const window = Dimensions.get("window");
   const isCircle = shape === "circle";
   // Clear window matches the space cover on the home screen (full width, 190pt tall),
-  // or a centered square for the circular avatar frame.
-  const coverW = Math.round(window.width - spacing.lg * 2 - 8);
-  const cardRatio = (window.width - spacing.lg * 2) / 190;
+  // or a centered square for the circular avatar frame. On a desktop browser the
+  // frame keeps a phone's proportions (capped at 430pt wide) instead of turning
+  // into a thin 1400pt strip, so a crop made there still suits phones.
+  const refWidth = Math.min(window.width, 430);
+  const coverW = Math.round(refWidth - spacing.lg * 2 - 8);
+  const cardRatio = (refWidth - spacing.lg * 2) / 190;
   const frameW = isCircle ? Math.min(coverW, 300) : coverW;
   const frameH = isCircle ? frameW : Math.round(frameW / cardRatio);
 
