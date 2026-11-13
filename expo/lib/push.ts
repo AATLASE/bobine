@@ -253,10 +253,18 @@ export async function registerPushToken(userId: string): Promise<void> {
 }
 
 /**
+ * What `enablePush` ended with. `failed` means the user said yes but the device
+ * could not be subscribed (service worker, VAPID key, push service, no token):
+ * sending them to their settings would be pointless, so it is kept apart from
+ * `denied`.
+ */
+export type EnablePushResult = PushPermission | "failed";
+
+/**
  * Asks for permission and subscribes. This is the one path allowed to prompt,
  * because the user just flipped the switch that says so.
  */
-export async function enablePush(userId: string): Promise<PushPermission> {
+export async function enablePush(userId: string): Promise<EnablePushResult> {
   if (pushSupported() === "unsupported") return "denied";
 
   if (isWeb()) {
@@ -265,7 +273,7 @@ export async function enablePush(userId: string): Promise<PushPermission> {
     if (permission !== "granted") return permission === "denied" ? "denied" : "undetermined";
 
     const sub = await getWebSubscription(true);
-    if (!sub) return "denied";
+    if (!sub) return "failed";
     await setPushOptOut(userId, false);
     await storeSubscription(sub);
     return "granted";
@@ -276,7 +284,11 @@ export async function enablePush(userId: string): Promise<PushPermission> {
   const settings = await Notifications.requestPermissionsAsync();
   if (!settings.granted) return settings.canAskAgain ? "undetermined" : "denied";
   await setPushOptOut(userId, false);
-  await registerPushToken(userId);
+  // Not registerPushToken: it swallows a missing token, and the switch would
+  // then say "on" for a device the sender cannot reach.
+  const token = await getExpoPushToken();
+  if (!token) return "failed";
+  await storeSubscription({ endpoint: token, p256dh: "", auth: "" });
   return "granted";
 }
 

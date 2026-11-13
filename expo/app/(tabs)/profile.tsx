@@ -93,15 +93,21 @@ function PushToggle() {
       setEnabled(result === "granted");
       if (result === "granted") {
         toast.success("Notifications activées");
-      } else {
+      } else if (result === "failed") {
+        // Permission is there; the subscription is what broke. Settings won't help.
+        toast.error("Notifications autorisées, mais l'inscription de cet appareil a échoué. Réessaie dans un instant.");
+      } else if (result === "denied") {
         toast.info(
           Platform.OS === "web"
-            ? "Autorise les notifications dans les réglages du site."
-            : "Active les notifications dans les réglages de ton téléphone.",
+            ? "Les notifications sont bloquées pour Gather. Débloque-les dans les réglages du téléphone (iPhone : Réglages › Notifications › Gather) ou du navigateur (icône à gauche de l'adresse › Notifications)."
+            : "Les notifications sont bloquées. Débloque-les dans Réglages du téléphone › Notifications › Gather.",
         );
+      } else {
+        toast.info("Autorise les notifications quand ton téléphone te le demande.");
       }
-    } catch {
-      toast.error("Impossible d'activer les notifications ici.");
+    } catch (e) {
+      console.log("[push] activation impossible:", e);
+      toast.error("Impossible d'enregistrer cet appareil pour les notifications.");
     }
   };
 
