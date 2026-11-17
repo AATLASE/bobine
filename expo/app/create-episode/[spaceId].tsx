@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Camera, Clock, Eye, Image as ImageIcon, Images, MapPin, Plus, Tag, Video, X } from "lucide-react-native";
+import { Camera, Check, Clock, Eye, Image as ImageIcon, Images, MapPin, Plus, Tag, Video, X } from "lucide-react-native";
 import { useState } from "react";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import { CoverAdjustModal } from "@/components/CoverAdjustModal";
@@ -14,9 +14,11 @@ import { AppText } from "@/components/ui/Text";
 import { colors, radius, spacing } from "@/constants/theme";
 import { friendlyError } from "@/lib/errors";
 import { captureWithCamera, pickCoverImage, pickFromLibrary, PickedAsset } from "@/lib/media";
-import { canParticipate } from "@/lib/types";
+import { canParticipate, reviewersOf } from "@/lib/types";
 import { useCreateEpisode } from "@/hooks/useEpisodes";
+import { useMembers } from "@/hooks/useMembers";
 import { useSpace } from "@/hooks/useSpaces";
+import { useAuth } from "@/providers/auth";
 import { useToast } from "@/providers/toast";
 
 const SUGGESTED_TAGS = ["🍽️ Resto", "🎉 Soirée", "🏖️ Vacances", "🎬 Ciné", "🥾 Rando", "☕ Café", "🎤 Concert", "🏠 Cocooning"];
@@ -39,6 +41,13 @@ export default function CreateEpisodeScreen() {
   const [pendingCover, setPendingCover] = useState<PickedAsset | null>(null);
   const [assets, setAssets] = useState<PickedAsset[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  // "Qui était là ?" — everybody by default; the creator is there by definition.
+  const { userId } = useAuth();
+  const { data: members } = useMembers(spaceId);
+  const others = reviewersOf(members).filter((m) => m.user_id !== userId);
+  const [absentIds, setAbsentIds] = useState<string[]>([]);
+  const togglePresence = (id: string) =>
+    setAbsentIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
   const onPickCover = async () => {
     try {
@@ -92,6 +101,7 @@ export default function CreateEpisodeScreen() {
         tags,
         cover,
         assets,
+        absentIds,
       });
       if (coverFailed) {
         toast.info("Épisode créé, mais la couverture n'a pas pu être envoyée. Réessaie depuis l'épisode.");
@@ -238,6 +248,50 @@ export default function CreateEpisodeScreen() {
           <Field label="Lieu (optionnel)">
             <Input icon={<MapPin size={18} color={colors.textFaint} />} placeholder="Lisbonne, Portugal" value={place} onChangeText={setPlace} />
           </Field>
+
+          {others.length > 0 ? (
+            <Field label="Qui était là ?" hint="L'épisode se révèle quand tous ceux qui y étaient ont écrit leur review. Touche un prénom pour retirer quelqu'un qui n'était pas là.">
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                {others.map((m) => {
+                  const present = !absentIds.includes(m.user_id);
+                  const name = m.profile?.name?.trim() || "Membre";
+                  return (
+                    <PressableScale
+                      key={m.user_id}
+                      onPress={() => togglePresence(m.user_id)}
+                      withHaptic={false}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: present }}
+                      accessibilityLabel={`${name}, ${present ? "était là" : "n'était pas là"}`}
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 6,
+                        minHeight: 44,
+                        paddingHorizontal: 14,
+                        borderRadius: radius.pill,
+                        borderWidth: 1,
+                        borderColor: present ? colors.primary : colors.border,
+                        backgroundColor: present ? colors.primarySoft : colors.surface,
+                      }}
+                    >
+                      {present ? <Check size={14} color={colors.primary} /> : null}
+                      <AppText
+                        style={{
+                          fontWeight: "600",
+                          fontSize: 14,
+                          color: present ? colors.text : colors.textMuted,
+                          textDecorationLine: present ? "none" : "line-through",
+                        }}
+                      >
+                        {name}
+                      </AppText>
+                    </PressableScale>
+                  );
+                })}
+              </View>
+            </Field>
+          ) : null}
 
           <Field label="Tags">
             <Input

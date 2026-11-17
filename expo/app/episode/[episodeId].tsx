@@ -52,6 +52,7 @@ import {
   canParticipate,
   effectiveRole,
   isOwner,
+  presentReviewers,
   reviewersOf,
   type EpisodeMedia,
   type MemberRole,
@@ -66,6 +67,7 @@ import {
   useSetEpisodeCover,
   useToggleLike,
 } from "@/hooks/useEpisodes";
+import { useSetEpisodeAbsence, useSpaceAbsences } from "@/hooks/useAbsences";
 import { useMembers } from "@/hooks/useMembers";
 import { useEpisodeReviewAuthors, useEpisodeReviews, useMyReview, useRevealEpisodeNow } from "@/hooks/useReviews";
 import { useAddComment, useComments, useDeleteComment, useToggleReaction } from "@/hooks/useSocial";
@@ -99,6 +101,8 @@ export default function EpisodeDetailScreen() {
   const { data: members } = useMembers(spaceId);
   const { data: reviews } = useEpisodeReviews(episodeId);
   const { data: reviewAuthors } = useEpisodeReviewAuthors(episodeId);
+  const { data: absences } = useSpaceAbsences(spaceId);
+  const setAbsence = useSetEpisodeAbsence(episodeId, spaceId);
   const revealNow = useRevealEpisodeNow(episodeId, episode?.space_id ?? "");
   const { data: myReview } = useMyReview(episodeId);
   const { data: comments } = useComments(episodeId);
@@ -147,10 +151,32 @@ export default function EpisodeDetailScreen() {
     () => new Set([...(reviewAuthors ?? []), ...(reviews ?? []).map((r) => r.author_id)]),
     [reviewAuthors, reviews]
   );
-  const reviewers: SpaceMember[] = useMemo(() => reviewersOf(members), [members]);
+  // The space's participants, then the ones this episode waits for: those who
+  // were there ("Qui était là ?").
+  const allReviewers: SpaceMember[] = useMemo(() => reviewersOf(members), [members]);
+  const absentIds = absences?.get(episodeId);
+  const reviewers: SpaceMember[] = useMemo(
+    () => presentReviewers(allReviewers, absentIds, answeredIds),
+    [allReviewers, absentIds, answeredIds]
+  );
+  const absentees = useMemo(() => allReviewers.filter((m) => !reviewers.includes(m)), [allReviewers, reviewers]);
+  const iAmAbsent = !!userId && absentees.some((m) => m.user_id === userId);
   // Alone in the space: the reveal has nobody to wait for, so the card talks
   // about inviting the group instead of "you are the last one to answer".
-  const alone = reviewers.length === 1;
+  const alone = allReviewers.length === 1;
+
+  const changePresence = (member: SpaceMember, absent: boolean) =>
+    setAbsence.mutate(
+      { userId: member.user_id, absent },
+      {
+        onSuccess: () => {
+          const mine = member.user_id === userId;
+          if (absent) toast.success(mine ? "Noté : cet épisode n'attend pas ta review." : `${member.profile?.name ?? "Ce membre"} n'est plus attendu(e) sur cet épisode.`);
+          else toast.success(mine ? "Noté : à toi d'écrire ta review." : `${member.profile?.name ?? "Ce membre"} est de nouveau attendu(e).`);
+        },
+        onError: (e) => toast.error(friendlyError(e)),
+      },
+    );
   const pendingCount = useMemo(
     () => reviewers.filter((m) => !answeredIds.has(m.user_id)).length,
     [reviewers, answeredIds]
@@ -487,6 +513,23 @@ export default function EpisodeDetailScreen() {
                   </AppText>
                   <Button title="Modifier ma review" variant="secondary" icon={<PenLine size={16} color={colors.text} />} onPress={() => router.push({ pathname: "/review/[episodeId]", params: { episodeId } })} />
                 </Card>
+              ) : iAmAbsent ? (
+                <Card style={{ gap: spacing.md, alignItems: "center" }}>
+                  <AppText variant="h3" center>Tu n&apos;y étais pas</AppText>
+                  <AppText variant="bodyMuted" center>
+                    Cet épisode n&apos;attend pas ta review. Tu liras celles des autres dès qu&apos;elles seront révélées.
+                  </AppText>
+                  <Button
+                    title="En fait, j'y étais"
+                    variant="secondary"
+                    loading={setAbsence.isPending}
+                    onPress={() => {
+                      const me = allReviewers.find((m) => m.user_id === userId);
+                      if (me) changePresence(me, false);
+                    }}
+                    fullWidth
+                  />
+                </Card>
               ) : (
                 alone ? (
                   <Card glow style={{ gap: spacing.md, alignItems: "center" }}>
@@ -520,6 +563,17 @@ export default function EpisodeDetailScreen() {
                         : "Ce que tu ressens, ta note, ta citation préférée. Personne ne la verra tant que le groupe entier n'a pas publié la sienne."}
                     </AppText>
                     <Button title="Écrire ma review" onPress={() => router.push({ pathname: "/review/[episodeId]", params: { episodeId } })} fullWidth />
+                    {/* Nobody should hold the reveal back for an outing they missed. */}
+                    <Button
+                      title="Je n'y étais pas"
+                      variant="ghost"
+                      loading={setAbsence.isPending}
+                      onPress={() => {
+                        const me = allReviewers.find((m) => m.user_id === userId);
+                        if (me) changePresence(me, true);
+                      }}
+                      fullWidth
+                    />
                   </Card>
                 </Pulse>
                 )
@@ -536,7 +590,7 @@ export default function EpisodeDetailScreen() {
             )}
 
             {/* Who answered — nothing to track with a single participant. */}
-            {reviewers.length > 1 ? (
+            {allReviewers.length > 1 ? (
               <Card style={{ gap: spacing.md }}>
                 <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                   <AppText variant="overline">Qui a déjà répondu</AppText>
@@ -561,9 +615,47 @@ export default function EpisodeDetailScreen() {
                           <AppText style={{ color: colors.textFaint, fontWeight: "600", fontSize: 12.5 }}>En attente</AppText>
                         </View>
                       )}
+                      {/* The creator and the owner say who was not there; each
+                          person does it for themselves from their own card. */}
+                      {!answered && canManage && member.user_id !== userId ? (
+                        <TouchableOpacity
+                          onPress={() =>
+                            confirmAction(
+                              `${member.profile?.name ?? "Ce membre"} n'était pas là ?`,
+                              "L'épisode n'attendra plus sa review pour se révéler.",
+                              "Pas là",
+                              () => changePresence(member, true),
+                            )
+                          }
+                          hitSlop={10}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Indiquer que ${member.profile?.name ?? "ce membre"} n'était pas là`}
+                          style={{ minHeight: 32, justifyContent: "center", paddingLeft: 6 }}
+                        >
+                          <AppText style={{ color: colors.accent, fontWeight: "700", fontSize: 12.5 }}>Pas là ?</AppText>
+                        </TouchableOpacity>
+                      ) : null}
                     </View>
                   );
                 })}
+                {absentees.map((member) => (
+                  <View key={member.user_id} style={{ flexDirection: "row", alignItems: "center", gap: 10, opacity: 0.75 }}>
+                    <Avatar profile={member.profile} size={30} />
+                    <AppText style={{ flex: 1, fontWeight: "600", color: colors.textMuted }}>{member.profile?.name ?? "Membre"}</AppText>
+                    <AppText style={{ color: colors.textFaint, fontWeight: "600", fontSize: 12.5 }}>N&apos;y était pas</AppText>
+                    {canManage && member.user_id !== userId ? (
+                      <TouchableOpacity
+                        onPress={() => changePresence(member, false)}
+                        hitSlop={10}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Indiquer que ${member.profile?.name ?? "ce membre"} était là`}
+                        style={{ minHeight: 32, justifyContent: "center", paddingLeft: 6 }}
+                      >
+                        <AppText style={{ color: colors.accent, fontWeight: "700", fontSize: 12.5 }}>Annuler</AppText>
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+                ))}
                 <AppText variant="caption">
                   {pendingCount === 0
                     ? "Tout le monde a répondu — la révélation arrive."

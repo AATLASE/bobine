@@ -16,7 +16,8 @@ import { SegmentedToggle } from "@/components/ui/SegmentedToggle";
 import { AppText } from "@/components/ui/Text";
 import { colors, radius, shadows, spacing } from "@/constants/theme";
 import { formatDateShort, getSeasonStatus, type SeasonStatus } from "@/lib/format";
-import { canParticipate, isOwner, reviewersOf, reviewProgress, type ReviewProgress } from "@/lib/types";
+import { canParticipate, isOwner, presentReviewers, reviewersOf, reviewProgress, type ReviewProgress } from "@/lib/types";
+import { useSpaceAbsences } from "@/hooks/useAbsences";
 import { useEpisodes } from "@/hooks/useEpisodes";
 import { useLayout } from "@/hooks/useLayout";
 import { useMembers } from "@/hooks/useMembers";
@@ -93,6 +94,7 @@ export default function MomentsScreen() {
   const { data: episodes, isLoading: episodesLoading } = useEpisodes(spaceId);
   const { data: members } = useMembers(spaceId);
   const { data: reviewAuthors } = useSpaceReviewAuthors(spaceId);
+  const { data: absences } = useSpaceAbsences(spaceId);
   const [mode, setMode] = useState<ViewMode>("grid");
   const { wide, desktop } = useLayout();
   const window = useWindowDimensions();
@@ -104,12 +106,16 @@ export default function MomentsScreen() {
   const seasonUnlocked = !!space?.season_unlocked;
   // Nothing until the authors are known: every card would say "À toi" for a beat.
   const progressById = useMemo(() => {
-    if (!reviewAuthors || !episodes) return undefined;
+    if (!reviewAuthors || !absences || !episodes) return undefined;
     const reviewers = reviewersOf(members);
+    // Each episode waits only for the participants who were there.
     return new Map<string, ReviewProgress>(
-      episodes.map((ep) => [ep.id, reviewProgress(ep, reviewAuthors.get(ep.id), reviewers, userId, seasonUnlocked)])
+      episodes.map((ep) => {
+        const authors = reviewAuthors.get(ep.id);
+        return [ep.id, reviewProgress(ep, authors, presentReviewers(reviewers, absences.get(ep.id), authors), userId, seasonUnlocked)];
+      })
     );
-  }, [reviewAuthors, episodes, members, userId, seasonUnlocked]);
+  }, [reviewAuthors, absences, episodes, members, userId, seasonUnlocked]);
 
   // Episodes come newest first, so the oldest one waiting is the last.
   const waiting = useMemo(
