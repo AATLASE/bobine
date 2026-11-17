@@ -14,6 +14,9 @@ export function redirectSystemPath({ path }: { path: string; initial: boolean })
     if (isRecoveryUrl(path)) {
       return "/reset-password";
     }
+    if (/auth-callback/i.test(path)) {
+      return "/auth-callback";
+    }
     if (/join/i.test(path)) {
       const match = path.match(/[?&]code=([^&]+)/i);
       const code = match ? decodeURIComponent(match[1]) : null;

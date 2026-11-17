@@ -50,6 +50,8 @@ function RootNav() {
     SplashScreen.hideAsync().catch(() => {});
     const inAuthGroup = segments[0] === "(auth)";
     const onReset = segments[0] === "reset-password";
+    // The OAuth return screen handles its own redirect once the session lands.
+    if ((segments[0] as string) === "auth-callback") return;
 
     // Password recovery takes priority over everything: keep the user on the
     // "set a new password" screen until they finish or cancel.
@@ -109,6 +111,7 @@ function RootNav() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="reset-password" options={{ animation: "fade" }} />
+        <Stack.Screen name="auth-callback" options={{ animation: "none" }} />
         <Stack.Screen name="onboarding" options={{ presentation: "fullScreenModal", gestureEnabled: false, animation: "fade" }} />
         {/* Redirect shims keeping pre-tabs deep links and notification URLs alive. */}
         <Stack.Screen name="space/[id]/index" options={{ animation: "none" }} />
