@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { setEpisodeAbsence } from "@/hooks/useAbsences";
 import { qk } from "@/lib/keys";
 import { PickedAsset, removeStoredFiles, uploadMedia } from "@/lib/media";
 import { supabase } from "@/lib/supabase";
@@ -59,6 +60,8 @@ export interface CreateEpisodeInput {
   cover?: PickedAsset | null;
   /** The album: everything shot that day. */
   assets: PickedAsset[];
+  /** Participants who were not there: the episode will not wait for their review. */
+  absentIds?: string[];
 }
 
 export interface CreatedEpisode {
@@ -98,6 +101,16 @@ export function useCreateEpisode() {
         .single();
       if (error) throw error;
       const episode = data as Episode;
+
+      // Who was not there, before anything slow: a reminder must not reach
+      // them. Best-effort: each of them can still say "Je n'y étais pas".
+      for (const absentId of input.absentIds ?? []) {
+        try {
+          await setEpisodeAbsence(episode.id, absentId, true);
+        } catch (e) {
+          console.log("[episodes] could not record an absence:", e);
+        }
+      }
 
       // Media is best-effort from here on. Deleting the episode because one
       // photo failed to upload throws away everything the user typed — they can
@@ -139,6 +152,7 @@ export function useCreateEpisode() {
     },
     onSuccess: ({ episode }) => {
       queryClient.invalidateQueries({ queryKey: qk.episodes(episode.space_id) });
+      queryClient.invalidateQueries({ queryKey: qk.absences(episode.space_id) });
     },
   });
 }

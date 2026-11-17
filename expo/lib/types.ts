@@ -199,6 +199,20 @@ export function reviewersOf<M extends Pick<SpaceMember, "role" | "can_create_epi
   return (members ?? []).filter((m) => m.role === "owner" || (m.role === "member" && !!m.can_create_episodes));
 }
 
+/**
+ * Of the space's reviewers, the ones one episode waits for: those who were
+ * there. Somebody marked absent who wrote a review anyway stays in the list,
+ * so what they wrote is shown with the others.
+ */
+export function presentReviewers<M extends Pick<SpaceMember, "user_id">>(
+  reviewers: M[],
+  absent: ReadonlySet<string> | undefined,
+  authors?: ReadonlySet<string>,
+): M[] {
+  if (!absent || absent.size === 0) return reviewers;
+  return reviewers.filter((m) => !absent.has(m.user_id) || !!authors?.has(m.user_id));
+}
+
 /** Where an episode stands for the person looking at it, as the home cards show it. */
 export interface ReviewProgress {
   revealed: boolean;
