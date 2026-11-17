@@ -51,7 +51,16 @@ export function RevealedReviews({ reviewers, reviews }: { reviewers: Reviewer[];
   const [view, setView] = useState<ReviewsView>("question");
 
   const byAuthor = useMemo(() => new Map(reviews.map((r) => [r.author_id, r])), [reviews]);
-  const written = reviewers.filter((m) => byAuthor.has(m.user_id));
+  // People who wrote and are no longer participants (left the space, became
+  // observers, deleted their account: « Ancien membre ») keep their review.
+  const people = useMemo<Reviewer[]>(() => {
+    const current = new Set(reviewers.map((m) => m.user_id));
+    const former = reviews
+      .filter((r) => !current.has(r.author_id))
+      .map((r) => ({ user_id: r.author_id, profile: r.profile ?? ({ name: r.author_name ?? "Ancien membre" } as Profile) }));
+    return [...reviewers, ...former];
+  }, [reviewers, reviews]);
+  const written = people.filter((m) => byAuthor.has(m.user_id));
   const silent = reviewers.filter((m) => !byAuthor.has(m.user_id));
 
   // A rating of 0 means "not rated", not "zero stars".
@@ -75,7 +84,7 @@ export function RevealedReviews({ reviewers, reviews }: { reviewers: Reviewer[];
       </View>
 
       {view === "person" ? (
-        reviewers.map((member) => {
+        people.map((member) => {
           const review = byAuthor.get(member.user_id);
           return (
             <Card key={member.user_id} style={{ gap: spacing.md }}>

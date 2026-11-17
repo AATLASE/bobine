@@ -15,7 +15,7 @@ import { friendlyError } from "@/lib/errors";
 import { PickedAsset, pickAvatarImage, uploadMedia } from "@/lib/media";
 import { disablePush, enablePush, pushOptedOut, pushPermission, pushSupported } from "@/lib/push";
 import { confirmAction } from "@/lib/confirm";
-import { useUpdateProfile } from "@/hooks/useProfile";
+import { fetchAccountDeletionPreview, useDeleteAccount, useUpdateProfile } from "@/hooks/useProfile";
 import { useActiveSpace } from "@/providers/activeSpace";
 import { useAuth } from "@/providers/auth";
 import { ThemeMode, useThemeMode } from "@/providers/theme";
@@ -315,6 +315,41 @@ export default function ProfileScreen() {
     confirmAction("Se déconnecter ?", "Tu pourras te reconnecter à tout moment.", "Se déconnecter", () => signOut());
   };
 
+  const deleteAccount = useDeleteAccount();
+  const [preparingDeletion, setPreparingDeletion] = useState<boolean>(false);
+  const confirmDeleteAccount = async () => {
+    if (preparingDeletion || deleteAccount.isPending) return;
+    setPreparingDeletion(true);
+    let steps;
+    try {
+      steps = await fetchAccountDeletionPreview();
+    } catch (e) {
+      toast.error(friendlyError(e));
+      return;
+    } finally {
+      setPreparingDeletion(false);
+    }
+    const spaceLines = steps.map((s) =>
+      s.action === "transfer"
+        ? `« ${s.space_name} » passera à ${s.heir_name?.trim() || "un autre membre"}.`
+        : `« ${s.space_name} » sera supprimé, avec ses épisodes et ses photos.`,
+    );
+    confirmAction(
+      "Supprimer ton compte ?",
+      [
+        "C'est définitif. Ton e-mail, ton nom, ta photo et tes notifications sont effacés, et tu quittes tous tes espaces.",
+        "Tes reviews, commentaires et photos restent dans les épisodes du groupe, signés « Ancien membre ».",
+        ...spaceLines,
+      ].join("\n\n"),
+      "Supprimer mon compte",
+      () =>
+        deleteAccount.mutate(undefined, {
+          onSuccess: () => toast.success("Ton compte a été supprimé."),
+          onError: (e) => toast.error(friendlyError(e)),
+        }),
+    );
+  };
+
   return (
     <Screen scroll width="reading" contentStyle={{ paddingHorizontal: spacing.lg }}>
       <View style={{ paddingTop: spacing.sm, paddingBottom: spacing.md }}>
@@ -416,6 +451,18 @@ export default function ProfileScreen() {
       >
         <LogOut size={18} color={colors.destructive} />
         <AppText style={{ color: colors.destructive, fontWeight: "700" }}>Se déconnecter</AppText>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={confirmDeleteAccount}
+        disabled={preparingDeletion || deleteAccount.isPending}
+        accessibilityRole="button"
+        accessibilityLabel="Supprimer mon compte"
+        style={{ alignItems: "center", justifyContent: "center", minHeight: 44, marginTop: spacing.md }}
+      >
+        <AppText variant="caption" style={{ color: colors.textMuted, textDecorationLine: "underline" }}>
+          {deleteAccount.isPending ? "Suppression…" : "Supprimer mon compte"}
+        </AppText>
       </TouchableOpacity>
 
       <CoverAdjustModal
