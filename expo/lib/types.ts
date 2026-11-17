@@ -96,6 +96,8 @@ export interface Review {
   id: string;
   episode_id: string;
   author_id: string;
+  /** Name at write time (« Ancien membre » once the account is deleted). */
+  author_name?: string | null;
   space_id: string | null;
   rating: number | null;
   favorite_moment: string | null;
