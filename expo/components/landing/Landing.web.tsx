@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { InstallButton, InstallPopup, InstallSheet, useLandingInstall, type LandingInstall } from "./LandingInstall";
 import "./landing.css";
 
 /**
@@ -174,6 +175,7 @@ export default function Landing() {
   const router = useRouter();
   const scroller = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
+  const install = useLandingInstall();
 
   const go = useCallback(
     (href: Href) => (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -257,12 +259,12 @@ export default function Landing() {
       </header>
 
       <main id="contenu">
-        <Hero go={go} />
+        <Hero go={go} install={install} />
         <Steps />
         <Ideas />
         <Reveal />
         <Private />
-        <Faq />
+        <Faq install={install} />
         <FinalCta go={go} />
       </main>
 
@@ -282,6 +284,9 @@ export default function Landing() {
           <p className="gl-footer__credit">Photos : Unsplash</p>
         </div>
       </footer>
+
+      <InstallPopup install={install} />
+      <InstallSheet install={install} />
     </div>
   );
 }
@@ -292,7 +297,7 @@ type Go = (href: Href) => (event: React.MouseEvent<HTMLAnchorElement>) => void;
 /* Hero                                                                */
 /* ------------------------------------------------------------------ */
 
-function Hero({ go }: { go: Go }) {
+function Hero({ go, install }: { go: Go; install: LandingInstall }) {
   return (
     <section className="gl-hero" aria-labelledby="hero-title">
       <div className="gl-wrap gl-hero__grid">
@@ -313,6 +318,7 @@ function Hero({ go }: { go: Go }) {
             <a className="gl-btn gl-btn--ghost gl-btn--lg" href="/login" onClick={go("/login")}>
               J&apos;ai déjà un compte
             </a>
+            <InstallButton install={install} className="gl-btn--sun gl-btn--install" />
           </div>
           <p className="gl-hero__note">
             <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 9V7a4 4 0 1 1 8 0v2m-9 0h10v8H5z" /></svg>
@@ -595,7 +601,7 @@ function Private() {
 /* FAQ + install                                                       */
 /* ------------------------------------------------------------------ */
 
-function Faq() {
+function Faq({ install }: { install: LandingInstall }) {
   return (
     <section id="faq" className="gl-faq" aria-labelledby="faq-title">
       <div className="gl-wrap gl-faq__grid">
@@ -640,6 +646,7 @@ function Faq() {
               </ol>
             </div>
           </div>
+          <InstallButton install={install} className="gl-btn--ink gl-install__cta" label="Ajouter Gather maintenant" />
         </aside>
       </div>
     </section>

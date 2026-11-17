@@ -40,8 +40,10 @@ interface BeforeInstallPromptEvent extends Event {
  * - `ios`: Safari has no API at all; the user has to go through the share sheet.
  * - `in-app`: an Instagram / Facebook / TikTok webview, which can install
  *   nothing; the link has to be opened in the real browser first.
+ * - `android`: an Android browser that has not (or not yet) sent its install
+ *   event, e.g. Firefox or Samsung Internet; the user goes through its menu.
  */
-export type InstallPath = "prompt" | "ios" | "in-app";
+export type InstallPath = "prompt" | "ios" | "in-app" | "android";
 
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 let installed = false;
@@ -91,7 +93,20 @@ export function getInstallPath(): InstallPath | null {
   const ua = navigator.userAgent;
   if (IN_APP_BROWSER.test(ua)) return "in-app";
   if (isIOS(ua)) return "ios";
+  if (/Android/i.test(ua)) return "android";
   return null;
+}
+
+/**
+ * A phone, as opposed to a tablet or a computer. Tablets report a coarse
+ * pointer too, so the screen size settles it.
+ */
+export function isPhone(): boolean {
+  if (Platform.OS !== "web" || typeof window === "undefined") return false;
+  const ua = navigator.userAgent;
+  if (/iPhone|iPod/.test(ua) || /Android.+Mobile/i.test(ua)) return true;
+  const coarse = window.matchMedia?.("(pointer: coarse)").matches ?? false;
+  return coarse && Math.min(window.screen.width, window.screen.height) < 600;
 }
 
 /** Called whenever `getInstallPath` may have changed its answer. */

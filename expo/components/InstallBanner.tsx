@@ -1,7 +1,7 @@
 import * as Clipboard from "expo-clipboard";
 import { Image } from "expo-image";
 import { useSegments } from "expo-router";
-import { CircleCheck, Ellipsis, Globe, Share, SquarePlus, X } from "lucide-react-native";
+import { CircleCheck, Ellipsis, EllipsisVertical, Globe, Share, SquarePlus, X } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,6 +10,7 @@ import { AppText } from "@/components/ui/Text";
 import { colors, radius, shadows, spacing } from "@/constants/theme";
 import { getInstallPath, promptInstall, subscribeInstall, type InstallPath } from "@/lib/pwa";
 import { useLayout } from "@/hooks/useLayout";
+import { useAuth } from "@/providers/auth";
 import { useToast } from "@/providers/toast";
 
 const SNOOZE_KEY = "gather.install-banner.snoozed-at";
@@ -61,6 +62,7 @@ export function InstallBanner() {
   const insets = useSafeAreaInsets();
   const { wide } = useLayout();
   const { success: toastSuccess } = useToast();
+  const { isAuthenticated } = useAuth();
 
   const [path, setPath] = useState<InstallPath | null>(() => getInstallPath());
   const [ready, setReady] = useState<boolean>(false);
@@ -75,7 +77,10 @@ export function InstallBanner() {
     return () => clearTimeout(timer);
   }, []);
 
-  const onEntryScreen = segments[0] === "(auth)" || segments[0] === "(tabs)";
+  // Signed-out web visitors at "/" see the landing page inside (tabs); it has
+  // its own install offer (components/landing/LandingInstall.tsx).
+  const onLanding = segments[0] === "(tabs)" && !isAuthenticated;
+  const onEntryScreen = (segments[0] === "(auth)" || segments[0] === "(tabs)") && !onLanding;
   const visible = ready && !dismissed && path !== null && onEntryScreen;
 
   useEffect(() => {
@@ -114,7 +119,7 @@ export function InstallBanner() {
   // The bottom tab bar only exists on narrow screens; wide ones have a side navigation.
   const bottom = insets.bottom + spacing.md + (segments[0] === "(tabs)" && !wide ? TAB_BAR_HEIGHT : 0);
 
-  let actionLabel = path === "in-app" ? "Comment ?" : "Installer";
+  let actionLabel = path === "in-app" || path === "android" ? "Comment ?" : "Installer";
   if (expanded) actionLabel = "Masquer";
 
   return (
@@ -166,6 +171,26 @@ export function InstallBanner() {
             <Step
               icon={<CircleCheck size={18} color={colors.primary} />}
               title="Valide avec « Ajouter »"
+              hint="Gather apparaît alors avec tes autres apps."
+            />
+          </View>
+        ) : null}
+
+        {expanded && path === "android" ? (
+          <View style={[styles.steps, { borderTopColor: colors.border }]}>
+            <Step
+              icon={<EllipsisVertical size={18} color={colors.primary} />}
+              title="Touche le menu ⋮ du navigateur"
+              hint="En haut à droite, ou en bas selon ton navigateur."
+            />
+            <Step
+              icon={<SquarePlus size={18} color={colors.primary} />}
+              title="Choisis « Installer l'application »"
+              hint="Ou « Ajouter à l'écran d'accueil »."
+            />
+            <Step
+              icon={<CircleCheck size={18} color={colors.primary} />}
+              title="Confirme"
               hint="Gather apparaît alors avec tes autres apps."
             />
           </View>
