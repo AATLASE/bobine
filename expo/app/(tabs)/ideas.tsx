@@ -1,4 +1,5 @@
-import { Flame, Lightbulb, Plus, Trash2, X } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import { Check, ChevronRight, Clapperboard, Flame, Lightbulb, Plus, Trash2, X } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import { RefreshControl, TouchableOpacity, View } from "react-native";
 import { SpaceSwitcher } from "@/components/SpaceSwitcher";
@@ -21,6 +22,7 @@ import { useAuth } from "@/providers/auth";
 import { useToast } from "@/providers/toast";
 
 export default function IdeasScreen() {
+  const router = useRouter();
   const toast = useToast();
   const { userId } = useAuth();
   const { space, isLoading: spaceLoading, hasNoSpace } = useActiveSpace();
@@ -40,10 +42,16 @@ export default function IdeasScreen() {
   const [description, setDescription] = useState<string>("");
   const [saving, setSaving] = useState<boolean>(false);
 
+  // Ideas still in the vote, most wanted first; the ones the group did are
+  // kept below, as the list of what came out of this tab.
   const sorted = useMemo(
-    () => [...(ideas ?? [])].sort((a, b) => b.voteCount - a.voteCount || (b.created_at ?? "").localeCompare(a.created_at ?? "")),
+    () =>
+      (ideas ?? [])
+        .filter((i) => i.status !== "done")
+        .sort((a, b) => b.voteCount - a.voteCount || (b.created_at ?? "").localeCompare(a.created_at ?? "")),
     [ideas]
   );
+  const done = useMemo(() => (ideas ?? []).filter((i) => i.status === "done"), [ideas]);
 
   const submit = async () => {
     if (!title.trim()) {
@@ -130,7 +138,7 @@ export default function IdeasScreen() {
 
       {isLoading ? (
         <Loader label="Chargement des idées…" />
-      ) : sorted.length === 0 ? (
+      ) : sorted.length === 0 && done.length === 0 ? (
         <EmptyState
           icon={<Lightbulb size={30} color={colors.primary} />}
           title="Aucune idée pour l'instant"
@@ -190,10 +198,54 @@ export default function IdeasScreen() {
                       <AppText style={{ fontWeight: "700", fontSize: 13, color: idea.voted ? "#fff" : colors.textMuted }}>{idea.voteCount}</AppText>
                     </PressableScale>
                   </View>
+
+                  {participate ? (
+                    <Button
+                      title="On l'a fait : créer l'épisode"
+                      variant="secondary"
+                      icon={<Clapperboard size={16} color={colors.text} />}
+                      onPress={() =>
+                        router.push({ pathname: "/create-episode/[spaceId]", params: { spaceId, ideaId: idea.id, ideaTitle: idea.title } })
+                      }
+                    />
+                  ) : null}
                 </Card>
               </FadeIn>
             );
           })}
+
+          {sorted.length === 0 ? (
+            <AppText variant="bodyMuted">Plus d&apos;idée en attente : tout ce qui a été proposé a été fait.</AppText>
+          ) : null}
+
+          {done.length > 0 ? (
+            <View style={{ gap: spacing.sm, marginTop: spacing.lg }}>
+              <AppText variant="overline">Déjà faites</AppText>
+              {done.map((idea) => (
+                <TouchableOpacity
+                  key={idea.id}
+                  disabled={!idea.episode_id}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Voir l'épisode de l'idée ${idea.title}`}
+                  onPress={() => idea.episode_id && router.push({ pathname: "/episode/[episodeId]", params: { episodeId: idea.episode_id } })}
+                >
+                  <Card style={{ flexDirection: "row", alignItems: "center", gap: spacing.md }}>
+                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.accentSoft, alignItems: "center", justifyContent: "center" }}>
+                      <Check size={18} color={colors.accent} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <AppText style={{ fontWeight: "700", fontSize: 15, color: colors.text }} numberOfLines={1}>{idea.title}</AppText>
+                      <AppText variant="caption">
+                        {idea.episode_id ? "Devenue un épisode" : "Faite"} · proposée par {idea.profile?.name ?? "un membre"}
+                      </AppText>
+                    </View>
+                    {idea.episode_id ? <ChevronRight size={18} color={colors.textMuted} /> : null}
+                  </Card>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : null}
         </View>
       )}
     </Screen>

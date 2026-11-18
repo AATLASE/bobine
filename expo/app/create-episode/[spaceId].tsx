@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Camera, Check, Clock, Eye, Image as ImageIcon, Images, MapPin, Plus, Tag, Video, X } from "lucide-react-native";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ScrollView, TouchableOpacity, View } from "react-native";
 import { CoverAdjustModal } from "@/components/CoverAdjustModal";
@@ -16,6 +17,8 @@ import { friendlyError } from "@/lib/errors";
 import { captureWithCamera, pickCoverImage, pickFromLibrary, PickedAsset } from "@/lib/media";
 import { canParticipate, reviewersOf } from "@/lib/types";
 import { useCreateEpisode } from "@/hooks/useEpisodes";
+import { linkIdeaToEpisode } from "@/hooks/useSocial";
+import { qk } from "@/lib/keys";
 import { useMembers } from "@/hooks/useMembers";
 import { useSpace } from "@/hooks/useSpaces";
 import { useAuth } from "@/providers/auth";
@@ -24,13 +27,16 @@ import { useToast } from "@/providers/toast";
 const SUGGESTED_TAGS = ["🍽️ Resto", "🎉 Soirée", "🏖️ Vacances", "🎬 Ciné", "🥾 Rando", "☕ Café", "🎤 Concert", "🏠 Cocooning"];
 
 export default function CreateEpisodeScreen() {
-  const { spaceId } = useLocalSearchParams<{ spaceId: string }>();
+  // Coming from an idea ("On l'a fait"): its title is the starting point, and
+  // the idea is linked to the episode once it exists.
+  const { spaceId, ideaId, ideaTitle } = useLocalSearchParams<{ spaceId: string; ideaId?: string; ideaTitle?: string }>();
+  const queryClient = useQueryClient();
   const router = useRouter();
   const toast = useToast();
   const { data: space } = useSpace(spaceId);
   const createEpisode = useCreateEpisode();
 
-  const [title, setTitle] = useState<string>("");
+  const [title, setTitle] = useState<string>(ideaTitle ?? "");
   const [titleError, setTitleError] = useState<string | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [place, setPlace] = useState<string>("");
@@ -92,7 +98,7 @@ export default function CreateEpisodeScreen() {
     setLoading(true);
     try {
       const durationNum = durationStr.trim() ? Number(durationStr.replace(/[^0-9]/g, "")) : null;
-      const { failedMedia, coverFailed } = await createEpisode.mutateAsync({
+      const { episode, failedMedia, coverFailed } = await createEpisode.mutateAsync({
         spaceId,
         title,
         date: date.toISOString(),
@@ -103,6 +109,15 @@ export default function CreateEpisodeScreen() {
         assets,
         absentIds,
       });
+      if (ideaId) {
+        // Best-effort: the episode exists either way, the idea just stays in the vote.
+        try {
+          await linkIdeaToEpisode(ideaId, episode.id);
+        } catch (e) {
+          console.log("[ideas] could not link the idea:", e);
+        }
+        queryClient.invalidateQueries({ queryKey: qk.ideas(spaceId) });
+      }
       if (coverFailed) {
         toast.info("Épisode créé, mais la couverture n'a pas pu être envoyée. Réessaie depuis l'épisode.");
       } else if (failedMedia > 0) {

@@ -168,6 +168,15 @@ export function useIdeas(spaceId: string) {
   });
 }
 
+/**
+ * Marks an idea as done by the episode it became. Goes through the database
+ * function: only the owner may update an idea directly.
+ */
+export async function linkIdeaToEpisode(ideaId: string, episodeId: string): Promise<void> {
+  const { error } = await supabase.rpc("link_idea_to_episode", { p_idea_id: ideaId, p_episode_id: episodeId });
+  if (error) throw error;
+}
+
 export function useCreateIdea(spaceId: string) {
   const { userId } = useAuth();
   const queryClient = useQueryClient();

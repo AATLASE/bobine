@@ -139,7 +139,10 @@ export interface Idea {
   space_id: string;
   title: string;
   description: string | null;
+  /** "voting" until the group does it; "done" once it became an episode. */
   status: string | null;
+  /** The episode the idea turned into, if it still exists. */
+  episode_id?: string | null;
   proposed_by: string | null;
   created_at: string;
   profile?: Profile | null;
