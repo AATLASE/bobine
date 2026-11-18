@@ -1,8 +1,9 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Clapperboard, Film, Lock, Share2, Sparkles, Users } from "lucide-react-native";
+import { Clapperboard, Film, Lock, Share2, Sparkles } from "lucide-react-native";
 import React from "react";
 import { RefreshControl, Share, View } from "react-native";
+import { SeasonSoFar } from "@/components/SeasonSoFar";
 import { SpaceSwitcher } from "@/components/SpaceSwitcher";
 import { InlineVideo } from "@/components/VideoSurface";
 import { Button } from "@/components/ui/Button";
@@ -18,7 +19,6 @@ import type { Synthese } from "@/lib/types";
 import { isOwner } from "@/lib/types";
 import { confirmAction } from "@/lib/confirm";
 import { useEpisodes } from "@/hooks/useEpisodes";
-import { useMembers } from "@/hooks/useMembers";
 import { useSynthese } from "@/hooks/useProfile";
 import { useUpdateSpace } from "@/hooks/useSpaces";
 import { useActiveSpace } from "@/providers/activeSpace";
@@ -39,16 +39,6 @@ function extractSummary(synthese: Synthese | null | undefined): string | null {
 // forcing a 16:9 frame around it.
 function SouvenirVideo({ url }: { url: string }) {
   return <InlineVideo url={url} style={{ borderRadius: radius.lg }} />;
-}
-
-function StatBox({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
-  return (
-    <Card style={{ flex: 1, alignItems: "center", gap: 4, paddingVertical: spacing.lg }}>
-      {icon}
-      <AppText style={{ fontSize: 24, fontWeight: "800", color: colors.text }}>{value}</AppText>
-      <AppText variant="caption">{label}</AppText>
-    </Card>
-  );
 }
 
 /**
@@ -72,7 +62,6 @@ export default function RecapScreen() {
   const spaceId = space?.id ?? "";
 
   const { data: episodes } = useEpisodes(spaceId);
-  const { data: members } = useMembers(spaceId);
   const unlocked = !!space?.season_unlocked;
   const { data: synthese } = useSynthese(spaceId, unlocked);
   const updateSpace = useUpdateSpace();
@@ -100,6 +89,7 @@ export default function RecapScreen() {
 
   const status = getSeasonStatus(space);
   const owner = isOwner(space.membership);
+  const seasonOver = status.state === "ended";
 
   const onUnlock = () => {
     confirmAction(
@@ -127,7 +117,7 @@ export default function RecapScreen() {
     <Screen scroll width="reading" contentStyle={{ paddingHorizontal: spacing.lg }} refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />}>
       <SpaceSwitcher />
 
-      <SectionHeader title="Bilan de saison" subtitle="Ce que chacun a pensé, révélé d'un coup" />
+      <SectionHeader title="Bilan de saison" subtitle="Votre saison en chiffres, et le grand bilan à la fin" />
 
       {!unlocked ? (
         <FadeIn>
@@ -160,20 +150,32 @@ export default function RecapScreen() {
             </LinearGradient>
           </View>
 
+          {/* The season is over: unlocking is the next thing to do. */}
+          {owner && seasonOver ? (
+            <View style={{ marginTop: spacing.xl }}>
+              <Button title="Débloquer la saison" icon={<Sparkles size={18} color={colors.primaryFg} />} onPress={onUnlock} loading={updateSpace.isPending} size="lg" />
+            </View>
+          ) : null}
+
+          <View style={{ marginTop: spacing.xl }}>
+            <SeasonSoFar spaceId={spaceId} episodes={episodes ?? []} unlocked={false} />
+          </View>
+
+          {/* Mid-season it stays possible, but it is no longer the first
+              thing an owner is offered on day one. */}
           <View style={{ marginTop: spacing.xl }}>
             {owner ? (
-              <Button title="Débloquer la saison maintenant" icon={<Sparkles size={18} color={colors.primaryFg} />} onPress={onUnlock} loading={updateSpace.isPending} size="lg" />
+              seasonOver ? null : (
+                <Button title={status.daysLeft === null ? "Débloquer la saison" : "Débloquer la saison avant la fin"} variant="ghost" onPress={onUnlock} loading={updateSpace.isPending} />
+              )
             ) : (
               <Card style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
                 <Lock size={18} color={colors.textMuted} />
-                <AppText variant="bodyMuted" style={{ flex: 1 }}>Seul le propriétaire peut débloquer la saison. Patience, le grand moment approche !</AppText>
+                <AppText variant="bodyMuted" style={{ flex: 1 }}>
+                  {seasonOver ? "La saison est terminée : le propriétaire peut maintenant débloquer le bilan." : status.daysLeft === null ? "Le propriétaire débloque le bilan quand le groupe est prêt." : "Le propriétaire débloque le bilan à la fin de la saison."}
+                </AppText>
               </Card>
             )}
-          </View>
-
-          <View style={{ flexDirection: "row", gap: spacing.md, marginTop: spacing.xl }}>
-            <StatBox label="Épisodes" value={episodes?.length ?? 0} icon={<Clapperboard size={18} color={colors.primary} />} />
-            <StatBox label="Membres" value={members?.length ?? 0} icon={<Users size={18} color={colors.accent} />} />
           </View>
         </FadeIn>
       ) : (
@@ -214,10 +216,7 @@ export default function RecapScreen() {
               </Card>
             ) : null}
 
-            <View style={{ flexDirection: "row", gap: spacing.md }}>
-              <StatBox label="Épisodes" value={episodes?.length ?? 0} icon={<Clapperboard size={18} color={colors.primary} />} />
-              <StatBox label="Membres" value={members?.length ?? 0} icon={<Users size={18} color={colors.accent} />} />
-            </View>
+            <SeasonSoFar spaceId={spaceId} episodes={episodes ?? []} unlocked />
 
             <View style={{ gap: spacing.md }}>
               <Button title="Revoir les épisodes" variant="secondary" icon={<Clapperboard size={18} color={colors.text} />} onPress={() => router.push("/")} />
