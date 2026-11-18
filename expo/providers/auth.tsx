@@ -103,7 +103,9 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { data: { name: name.trim() } },
+      // The code also travels with the account: the confirmation e-mail is
+      // often opened in another browser, where the stored code does not exist.
+      options: { data: { name: name.trim(), ...(inviteCode?.trim() ? { invite_code: inviteCode.trim().toUpperCase() } : {}) } },
     });
     if (error) throw error;
     return { needsConfirmation: !data.session };

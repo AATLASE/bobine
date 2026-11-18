@@ -82,9 +82,16 @@ export default function ReviewScreen() {
    * writing. Losing it to a stray gesture was silent and unrecoverable, so the
    * gesture is disabled while there is unsaved work and the close button asks.
    */
+  // Opened from a reminder link, this screen has nothing behind it: "back"
+  // did nothing and the form stayed on screen after saving.
+  const leave = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace({ pathname: "/episode/[episodeId]", params: { episodeId } });
+  };
+
   const closeWithGuard = () => {
     if (!dirty) {
-      router.back();
+      leave();
       return;
     }
     confirmAction(
@@ -93,7 +100,7 @@ export default function ReviewScreen() {
         ? "Ce que tu as écrit et les médias choisis ne seront pas enregistrés."
         : "Ce que tu as écrit ne sera pas enregistré.",
       "Abandonner",
-      () => router.back(),
+      leave,
       "Continuer à écrire",
     );
   };
@@ -172,7 +179,7 @@ export default function ReviewScreen() {
           ? `Review enregistrée 🔒${mediaNote}`
           : "Envoi des médias en cours, garde l'application ouverte",
       );
-      router.back();
+      leave();
     } catch (e) {
       toast.error(friendlyError(e));
     } finally {

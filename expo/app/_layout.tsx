@@ -66,6 +66,11 @@ function RootNav() {
       // app/(tabs)/_layout.tsx. Every other protected URL still goes to login.
       const atWebRoot = Platform.OS === "web" && typeof window !== "undefined" && window.location.pathname === "/";
       if (atWebRoot) return;
+      // An invite link shows the invitation (app/join.tsx), not a bare login form.
+      const onInvite =
+        (segments[0] as string) === "join" &&
+        (Platform.OS !== "web" || (typeof window !== "undefined" && !!new URLSearchParams(window.location.search).get("code")?.trim()));
+      if (onInvite) return;
       router.replace("/login");
     } else if (isAuthenticated && inAuthGroup) {
       router.replace("/");
