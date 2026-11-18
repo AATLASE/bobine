@@ -12,6 +12,7 @@ import { FadeIn } from "@/components/ui/motion";
 import { AppText } from "@/components/ui/Text";
 import { colors, radius, spacing } from "@/constants/theme";
 import { friendlyError } from "@/lib/errors";
+import { supabase } from "@/lib/supabase";
 import { captureWithCamera, pickFromLibrary, type PickedAsset } from "@/lib/media";
 import { enqueueEpisodeMedia } from "@/lib/uploadQueue";
 import { confirmAction } from "@/lib/confirm";
@@ -137,6 +138,12 @@ export default function ReviewScreen() {
       setFormError("Mets au moins une note, quelques mots sur ce moment, ou une photo.");
       return;
     }
+    // The database wants a note from 1 to 5 on every review. Words without
+    // stars used to fail on save with a raw database error, in English.
+    if (rating === 0 && (hasWritten || !!myReview)) {
+      setFormError("Il manque ta note : touche une étoile, de 1 à 5.");
+      return;
+    }
     setFormError(null);
     setLoading(true);
     const pendingCount = assets.length;
@@ -174,8 +181,18 @@ export default function ReviewScreen() {
         mediaNote = " — envoi des médias en cours, garde l'app ouverte";
       }
 
+      // The last review of an episode is not a review like the others: it
+      // opens everybody's. Say so, and let the episode screen stage the reveal.
+      let justRevealed = false;
+      if (savesReview && !episode.reviews_revealed_at) {
+        const { data: now } = await supabase.from("episodes").select("reviews_revealed_at").eq("id", episodeId).maybeSingle();
+        justRevealed = !!now?.reviews_revealed_at;
+      }
+
       toast.success(
-        savesReview
+        justRevealed
+          ? `Ta review était la dernière : c'est révélé ✨${mediaNote}`
+          : savesReview
           ? `Review enregistrée 🔒${mediaNote}`
           : "Envoi des médias en cours, garde l'application ouverte",
       );

@@ -76,6 +76,7 @@ import { useAuth } from "@/providers/auth";
 import { useToast } from "@/providers/toast";
 import { CommentItem } from "@/components/episode/CommentItem";
 import { RevealedReviews } from "@/components/episode/RevealedReviews";
+import { RevealGate } from "@/components/episode/RevealGate";
 
 
 /**
@@ -488,7 +489,14 @@ export default function EpisodeDetailScreen() {
           reviewers.length === 0 ? (
             <AppText variant="bodyMuted">Personne n&apos;a participé à cet épisode.</AppText>
           ) : (
-            <RevealedReviews reviewers={reviewers} reviews={reviews ?? []} />
+            <RevealGate
+              episodeId={episode.id}
+              revealedAt={episode.reviews_revealed_at}
+              reviewCount={(reviews ?? []).length}
+              ready={reviews !== undefined}
+            >
+              <RevealedReviews reviewers={reviewers} reviews={reviews ?? []} />
+            </RevealGate>
           )
         ) : (
           <>
