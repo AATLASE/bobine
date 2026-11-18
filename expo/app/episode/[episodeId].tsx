@@ -77,6 +77,7 @@ import { useToast } from "@/providers/toast";
 import { CommentItem } from "@/components/episode/CommentItem";
 import { RevealedReviews } from "@/components/episode/RevealedReviews";
 import { RevealGate } from "@/components/episode/RevealGate";
+import { PushOffer } from "@/components/PushOffer";
 
 
 /**
@@ -503,6 +504,7 @@ export default function EpisodeDetailScreen() {
             {/* My review status card */}
             {participate ? (
               myReview ? (
+                <>
                 <Card glow style={{ gap: spacing.md }}>
                   <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
@@ -521,6 +523,9 @@ export default function EpisodeDetailScreen() {
                   </AppText>
                   <Button title="Modifier ma review" variant="secondary" icon={<PenLine size={16} color={colors.text} />} onPress={() => router.push({ pathname: "/review/[episodeId]", params: { episodeId } })} />
                 </Card>
+                {/* Waiting for the others is when a notification is worth having. */}
+                {pendingCount > 0 ? <PushOffer /> : null}
+                </>
               ) : iAmAbsent ? (
                 <Card style={{ gap: spacing.md, alignItems: "center" }}>
                   <AppText variant="h3" center>Tu n&apos;y étais pas</AppText>
