@@ -13,8 +13,8 @@ import { AppText } from "@/components/ui/Text";
 import { colors, radius, spacing } from "@/constants/theme";
 import { friendlyError } from "@/lib/errors";
 import { PickedAsset, pickAvatarImage, uploadMedia } from "@/lib/media";
-import { disablePush, enablePush, pushOptedOut, pushPermission, pushSupported } from "@/lib/push";
 import { confirmAction } from "@/lib/confirm";
+import { usePushSwitch } from "@/hooks/usePushSwitch";
 import { fetchAccountDeletionPreview, useDeleteAccount, useUpdateProfile } from "@/hooks/useProfile";
 import { useActiveSpace } from "@/providers/activeSpace";
 import { useAuth } from "@/providers/auth";
@@ -53,64 +53,7 @@ function Row({
   );
 }
 
-function PushToggle() {
-  const toast = useToast();
-  const { userId } = useAuth();
-  const [enabled, setEnabled] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!userId) return;
-    // Permission alone is not the answer: the user may have switched push off
-    // here while the system permission stays granted.
-    Promise.all([pushPermission(), pushOptedOut(userId)])
-      .then(([p, optedOut]) => setEnabled(p === "granted" && !optedOut))
-      .catch(() => {});
-  }, [userId]);
-
-  const onToggle = async (value: boolean) => {
-    if (!userId) return;
-
-    // Off is remembered for this account on this device, so the next launch
-    // does not quietly subscribe again.
-    if (!value) {
-      await disablePush(userId);
-      setEnabled(false);
-      toast.info("Notifications désactivées");
-      return;
-    }
-
-    if (pushSupported() === "unsupported") {
-      toast.info(
-        Platform.OS === "web"
-          ? "Ce navigateur ne gère pas les notifications. Installe l'app depuis ton navigateur pour les recevoir."
-          : "Les notifications demandent l'app installée, pas Expo Go.",
-      );
-      return;
-    }
-
-    try {
-      const result = await enablePush(userId);
-      setEnabled(result === "granted");
-      if (result === "granted") {
-        toast.success("Notifications activées");
-      } else if (result === "failed") {
-        // Permission is there; the subscription is what broke. Settings won't help.
-        toast.error("Notifications autorisées, mais l'inscription de cet appareil a échoué. Réessaie dans un instant.");
-      } else if (result === "denied") {
-        toast.info(
-          Platform.OS === "web"
-            ? "Les notifications sont bloquées pour Gather. Débloque-les dans les réglages du téléphone (iPhone : Réglages › Notifications › Gather) ou du navigateur (icône à gauche de l'adresse › Notifications)."
-            : "Les notifications sont bloquées. Débloque-les dans Réglages du téléphone › Notifications › Gather.",
-        );
-      } else {
-        toast.info("Autorise les notifications quand ton téléphone te le demande.");
-      }
-    } catch (e) {
-      console.log("[push] activation impossible:", e);
-      toast.error("Impossible d'enregistrer cet appareil pour les notifications.");
-    }
-  };
-
+function PushToggle({ enabled, onToggle }: { enabled: boolean; onToggle: (value: boolean) => void }) {
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.md }}>
       <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" }}>
@@ -132,6 +75,18 @@ function PushToggle() {
   );
 }
 
+/** The two notification switches: the second one depends on the first. */
+function NotificationPrefs() {
+  const push = usePushSwitch();
+  return (
+    <>
+      <PushToggle enabled={push.enabled} onToggle={(value) => void push.toggle(value)} />
+      <Divider />
+      <DailyPromptToggle pushOn={push.enabled} />
+    </>
+  );
+}
+
 /**
  * The 8pm reminder, and its own switch.
  *
@@ -140,7 +95,7 @@ function PushToggle() {
  * Turning push off to escape it would also silence the replies to your own
  * comments, which is not what somebody means by "leave me alone at 8pm".
  */
-function DailyPromptToggle() {
+function DailyPromptToggle({ pushOn }: { pushOn: boolean }) {
   const toast = useToast();
   const { profile } = useAuth();
   const updateProfile = useUpdateProfile();
@@ -173,10 +128,14 @@ function DailyPromptToggle() {
       </View>
       <View style={{ flex: 1 }}>
         <AppText style={{ fontWeight: "600", fontSize: 15, color: colors.text }}>Relance du soir</AppText>
-        <AppText variant="caption">À 20h, « quelque chose à raconter aujourd&apos;hui ? »</AppText>
+        <AppText variant="caption">
+          {pushOn ? "À 20h, « quelque chose à raconter aujourd'hui ? »" : "Elle arrive par notification : active-les d'abord, juste au-dessus."}
+        </AppText>
       </View>
       <Switch
-        value={enabled}
+        // Without push there is nothing to deliver: showing it "on" was untrue.
+        value={pushOn && enabled}
+        disabled={!pushOn}
         onValueChange={onToggle}
         trackColor={{ false: colors.surface, true: colors.primary }}
         thumbColor="#fff"
@@ -421,9 +380,7 @@ export default function ProfileScreen() {
         <Card style={{ gap: spacing.lg }}>
           <ThemeSelector />
           <Divider />
-          <PushToggle />
-          <Divider />
-          <DailyPromptToggle />
+          <NotificationPrefs />
         </Card>
       </View>
 
