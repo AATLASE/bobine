@@ -12,17 +12,27 @@ import { colors, spacing } from "@/constants/theme";
 import { friendlyError } from "@/lib/errors";
 import { clearPendingInvite } from "@/lib/pendingInvite";
 import { joinMessage, useJoinSpace } from "@/hooks/useSpaces";
+import { InviteWelcome } from "@/components/InviteWelcome";
 import { useActiveSpace } from "@/providers/activeSpace";
+import { useAuth } from "@/providers/auth";
 import { useToast } from "@/providers/toast";
 
 export default function JoinScreen() {
+  const { isAuthenticated } = useAuth();
+  const params = useLocalSearchParams<{ code?: string }>();
+  // Signed out (the auth gate lets a guest stay here only with a code): the
+  // invitation itself, not a form asking for a code they already gave.
+  if (!isAuthenticated) return <InviteWelcome code={(params.code ?? "").trim().toUpperCase()} />;
+  return <JoinForm initialCode={params.code ?? ""} />;
+}
+
+function JoinForm({ initialCode }: { initialCode: string }) {
   const router = useRouter();
   const toast = useToast();
-  const params = useLocalSearchParams<{ code?: string }>();
   const joinSpace = useJoinSpace();
   const { select } = useActiveSpace();
 
-  const [code, setCode] = useState<string>(params.code ?? "");
+  const [code, setCode] = useState<string>(initialCode);
   const [codeError, setCodeError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 

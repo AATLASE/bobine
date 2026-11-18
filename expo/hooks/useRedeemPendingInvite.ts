@@ -6,6 +6,7 @@ import { qk } from "@/lib/keys";
 import { hasSeenOnboarding } from "@/lib/onboarding";
 import { clearPendingInvite, getPendingInvite } from "@/lib/pendingInvite";
 import { queryClient } from "@/lib/queryClient";
+import { supabase } from "@/lib/supabase";
 import { useActiveSpace } from "@/providers/activeSpace";
 import { useAuth } from "@/providers/auth";
 import { useToast } from "@/providers/toast";
@@ -37,7 +38,10 @@ export function useRedeemPendingInvite(): void {
     if (initializing || !isAuthenticated || recoveryMode || running.current) return;
     running.current = true;
     (async () => {
-      const code = await getPendingInvite();
+      // On this device first; else the code given at signup, kept on the
+      // account for when the confirmation link opened in another browser.
+      const carried = typeof user?.user_metadata?.invite_code === "string" ? (user.user_metadata.invite_code as string) : null;
+      const code = (await getPendingInvite()) ?? carried;
       if (code) {
         try {
           const result = await joinSpace.mutateAsync(code);
@@ -52,6 +56,7 @@ export function useRedeemPendingInvite(): void {
         } finally {
           // A bad or expired code must not be retried on every launch.
           await clearPendingInvite();
+          if (carried) await supabase.auth.updateUser({ data: { invite_code: null } }).catch(() => {});
         }
       }
 

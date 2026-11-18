@@ -103,7 +103,9 @@ export default function SignupScreen() {
         <View style={{ alignItems: "center", gap: spacing.sm, marginBottom: spacing.xl }}>
           <BrandMark size={64} />
           <Wordmark size={26} />
-          <AppText variant="bodyMuted" center>Crée ton compte et lance ta première saison.</AppText>
+          <AppText variant="bodyMuted" center>
+            {inviteCode ? "Crée ton compte, et tu rejoins l'espace dans la foulée." : "Crée ton compte et lance ta première saison."}
+          </AppText>
         </View>
       </FadeIn>
 
