@@ -50,7 +50,7 @@ export function useRedeemPendingInvite(): void {
           await queryClient.refetchQueries({ queryKey: qk.spaces });
           select(result.spaceId);
           toast.success(joinMessage(result));
-          router.replace("/");
+          router.replace("/aventure");
         } catch (error) {
           toast.error(friendlyError(error));
         } finally {

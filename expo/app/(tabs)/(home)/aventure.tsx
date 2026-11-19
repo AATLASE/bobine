@@ -87,6 +87,8 @@ function ReviewWaitingBanner({ title, others, onPress }: { title: string; others
 
 export default function MomentsScreen() {
   const router = useRouter();
+  // Back to the list of every adventure (the screen under this one in the tab's stack).
+  const backToList = () => (router.canGoBack() ? router.back() : router.replace("/"));
   const { userId } = useAuth();
   const { space, isLoading, hasNoSpace, refetch, isRefetching } = useActiveSpace();
   const spaceId = space?.id ?? "";
@@ -138,7 +140,7 @@ export default function MomentsScreen() {
   if (hasNoSpace || !space) {
     return (
       <Screen scroll contentStyle={{ paddingHorizontal: spacing.lg }}>
-        <SpaceSwitcher />
+        <SpaceSwitcher onBack={backToList} />
         <NoSpaceState
           icon={<Sparkles size={30} color={colors.primary} />}
           title="Aucun espace pour l'instant"
@@ -163,7 +165,7 @@ export default function MomentsScreen() {
       contentStyle={{ paddingHorizontal: spacing.lg }}
       refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />}
     >
-      <SpaceSwitcher />
+      <SpaceSwitcher onBack={backToList} />
 
       <View style={{ gap: spacing.md, flexDirection: desktop && space.cover_url ? "row" : "column", alignItems: desktop ? "stretch" : undefined }}>
         {/* The cover only when there is a real photo: an empty gradient pushed

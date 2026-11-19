@@ -51,7 +51,7 @@ export default function RootTabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="(home)"
         options={{
           title: "Moments",
           tabBarIcon: ({ color, size }) => <Clapperboard size={size - 2} color={color} />,

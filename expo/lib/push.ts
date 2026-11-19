@@ -325,3 +325,46 @@ export async function disablePush(userId: string, { remember = true }: { remembe
 export async function unregisterPushToken(userId: string): Promise<void> {
   await disablePush(userId, { remember: false });
 }
+
+/* ------------------------------- Test --------------------------------- */
+
+/** What a test push ended with, as the server saw it. */
+export type TestPushResult =
+  | { kind: "sent"; detail: string }
+  | { kind: "no_device" }
+  | { kind: "failed"; detail: string }
+  | { kind: "pending" };
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Sends a push to yourself and waits for send-push to say what happened
+ * (supabase/migrations/20261119120000_push_delivery_status.sql). The device is
+ * registered again first: a row lost on the server is the most common reason a
+ * phone stays silent while the switch says "on".
+ */
+export async function sendTestPush(userId: string): Promise<TestPushResult> {
+  await registerPushToken(userId);
+
+  const { data, error } = await supabase.rpc("send_test_push");
+  if (error) throw error;
+  const row = (Array.isArray(data) ? data[0] : data) as { notification_id?: string; devices?: number } | undefined;
+  if (!row?.notification_id) throw new Error("Le test n'a pas pu partir.");
+  if (!row.devices) return { kind: "no_device" };
+
+  // A cold start of the function can take several seconds.
+  for (let i = 0; i < 10; i += 1) {
+    await sleep(1500);
+    const { data: n } = await supabase
+      .from("notifications")
+      .select("push_status, push_detail")
+      .eq("id", row.notification_id)
+      .maybeSingle();
+    const status = (n as { push_status?: string | null } | null)?.push_status;
+    const detail = (n as { push_detail?: string | null } | null)?.push_detail ?? "";
+    if (status === "sent") return { kind: "sent", detail };
+    if (status === "no_device") return { kind: "no_device" };
+    if (status === "failed" || status === "skipped") return { kind: "failed", detail };
+  }
+  return { kind: "pending" };
+}

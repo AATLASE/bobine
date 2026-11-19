@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Platform } from "react-native";
-import { disablePush, enablePush, pushOptedOut, pushPermission, pushSupported, type PushPermission } from "@/lib/push";
+import { friendlyError } from "@/lib/errors";
+import { disablePush, enablePush, pushOptedOut, pushPermission, pushSupported, sendTestPush, type PushPermission } from "@/lib/push";
 import { useAuth } from "@/providers/auth";
 import { useToast } from "@/providers/toast";
 
@@ -20,6 +21,7 @@ export function usePushSwitch() {
   const [permission, setPermission] = useState<PushPermission | null>(null);
   const [optedOut, setOptedOut] = useState<boolean>(false);
   const [busy, setBusy] = useState<boolean>(false);
+  const [testing, setTesting] = useState<boolean>(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -94,6 +96,28 @@ export function usePushSwitch() {
     [userId, toast],
   );
 
+  /** Sends a push to this account and says, in plain words, what came of it. */
+  const test = useCallback(async (): Promise<void> => {
+    if (!userId) return;
+    setTesting(true);
+    try {
+      const result = await sendTestPush(userId);
+      if (result.kind === "sent") {
+        toast.success("Notification envoyée. Si rien ne s'affiche, regarde les réglages de notifications du téléphone pour Gather.");
+      } else if (result.kind === "no_device") {
+        toast.error("Aucun appareil enregistré pour ton compte. Désactive puis réactive les notifications ici.");
+      } else if (result.kind === "failed") {
+        toast.error(`Le service de notifications a refusé l'envoi (${result.detail}).`);
+      } else {
+        toast.info("Envoi en cours, la notification devrait arriver d'ici quelques secondes.");
+      }
+    } catch (e) {
+      toast.error(friendlyError(e));
+    } finally {
+      setTesting(false);
+    }
+  }, [userId, toast]);
+
   const canAsk = permission === "undetermined" && !optedOut && pushSupported() === "supported";
-  return { enabled, busy, canAsk, toggle };
+  return { enabled, busy, canAsk, toggle, test, testing };
 }

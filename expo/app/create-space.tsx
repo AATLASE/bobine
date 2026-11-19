@@ -132,7 +132,7 @@ export default function CreateSpaceScreen() {
           size="lg"
           onPress={() => {
             select(created.space.id);
-            router.replace("/");
+            router.replace("/aventure");
           }}
           style={{ marginTop: spacing.xxl }}
         />

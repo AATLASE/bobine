@@ -81,6 +81,14 @@ function NotificationPrefs() {
   return (
     <>
       <PushToggle enabled={push.enabled} onToggle={(value) => void push.toggle(value)} />
+      {push.enabled ? (
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.md, paddingLeft: 40 + spacing.md }}>
+          <AppText variant="caption" style={{ flex: 1 }}>
+            Pas de notification sur ce téléphone ? Envoie-toi un test.
+          </AppText>
+          <Button title="Tester" variant="secondary" size="sm" onPress={() => void push.test()} loading={push.testing} />
+        </View>
+      ) : null}
       <Divider />
       <DailyPromptToggle pushOn={push.enabled} />
     </>

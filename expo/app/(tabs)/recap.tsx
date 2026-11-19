@@ -219,7 +219,7 @@ export default function RecapScreen() {
             <SeasonSoFar spaceId={spaceId} episodes={episodes ?? []} unlocked />
 
             <View style={{ gap: spacing.md }}>
-              <Button title="Revoir les épisodes" variant="secondary" icon={<Clapperboard size={18} color={colors.text} />} onPress={() => router.push("/")} />
+              <Button title="Revoir les épisodes" variant="secondary" icon={<Clapperboard size={18} color={colors.text} />} onPress={() => router.push("/aventure")} />
               <Button title="Partager le bilan" variant="gold" icon={<Share2 size={18} color="#1A1607" />} onPress={shareRecap} />
             </View>
           </View>

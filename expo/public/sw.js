@@ -41,19 +41,37 @@ self.addEventListener("push", (event) => {
   }
 
   const title = payload.title || "Gather";
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body: payload.body || "",
-      icon: "/icon-192.png",
-      badge: "/favicon-32.png",
-      /* One notification per episode rather than a stack of near-identical
-       * banners: a new comment replaces the previous one on the same episode. */
-      tag: payload.tag || payload.url || "gather",
-      renotify: Boolean(payload.tag || payload.url),
-      data: { url: payload.url || "/" },
-    }),
-  );
+  const url = payload.url || "/";
+  const options = {
+    body: payload.body || "",
+    icon: "/icon-192.png",
+    /* The small icon in the Android status bar: Android keeps only its alpha
+     * channel, so it has to be a white shape on transparent (an opaque square
+     * shows as a blank white tile). */
+    badge: "/badge-96.png",
+    /* One notification per episode rather than a stack of near-identical
+     * banners: a new comment replaces the previous one on the same episode. */
+    tag: payload.tag || url || "gather",
+    renotify: Boolean(payload.tag || payload.url),
+    vibrate: [180, 80, 180],
+    timestamp: Date.now(),
+    actions: actionsFor(url),
+    data: { url },
+  };
+  /* The episode's photo, shown large when the notification is expanded. */
+  if (payload.image) options.image = payload.image;
+
+  event.waitUntil(self.registration.showNotification(title, options));
 });
+
+/* One button under the text: it makes the notification taller and says what a
+ * tap will do. */
+function actionsFor(url) {
+  if (url.startsWith("/review/")) return [{ action: "open", title: "Écrire ma review" }];
+  if (url.startsWith("/episode/")) return [{ action: "open", title: "Voir l'épisode" }];
+  if (url.startsWith("/create-episode/")) return [{ action: "open", title: "Ajouter un épisode" }];
+  return [];
+}
 
 /* Tapping the notification should land on the episode it is about — and reuse
  * the tab the app is already open in rather than piling up windows. */

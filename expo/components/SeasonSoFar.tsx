@@ -105,7 +105,7 @@ export function SeasonSoFar({ spaceId, episodes, unlocked }: { spaceId: string; 
           icon={<Hourglass size={18} color={colors.textMuted} />}
           title={stats.sealed > 1 ? `${stats.sealed} épisodes encore scellés` : "1 épisode encore scellé"}
           caption="Ils comptent ici dès que tout le monde a écrit."
-          onPress={() => router.push("/")}
+          onPress={() => router.push("/aventure")}
         />
       ) : null}
     </View>

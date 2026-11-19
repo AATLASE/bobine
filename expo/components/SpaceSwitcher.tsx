@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { Bell, Check, ChevronDown, Film, Plus, Ticket, X } from "lucide-react-native";
+import { Bell, Check, ChevronDown, ChevronLeft, Film, Plus, Ticket, X } from "lucide-react-native";
 import React, { useState } from "react";
 import { Modal, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,16 +21,26 @@ import { useActiveSpace } from "@/providers/activeSpace";
  * On wide web screens the side navigation carries the switcher and the
  * notifications, so this shrinks to a plain page title naming the space.
  */
-export function SpaceSwitcher() {
-  const router = useRouter();
+export function SpaceSwitcher({ onBack }: { onBack?: () => void } = {}) {
   const { space } = useActiveSpace();
-  const unread = useUnreadCount();
   const { wide } = useLayout();
   const [open, setOpen] = useState<boolean>(false);
 
   if (wide) {
     return (
       <View style={{ paddingTop: spacing.sm, paddingBottom: spacing.lg, gap: 2 }}>
+        {onBack ? (
+          <PressableScale
+            onPress={onBack}
+            scaleTo={0.97}
+            accessibilityRole="button"
+            accessibilityLabel="Retour à toutes nos aventures"
+            style={{ flexDirection: "row", alignItems: "center", gap: 2, alignSelf: "flex-start", marginBottom: spacing.xs }}
+          >
+            <ChevronLeft size={15} color={colors.textMuted} />
+            <AppText variant="label">Nos aventures</AppText>
+          </PressableScale>
+        ) : null}
         <AppText variant="overline">Espace</AppText>
         <AppText variant="title" numberOfLines={1}>
           {space?.name ?? "Aucun espace"}
@@ -51,6 +61,15 @@ export function SpaceSwitcher() {
           paddingBottom: spacing.md,
         }}
       >
+        {onBack ? (
+          <IconButton
+            icon={<ChevronLeft size={22} color={colors.text} />}
+            onPress={onBack}
+            variant="secondary"
+            size={40}
+            accessibilityLabel="Retour à toutes nos aventures"
+          />
+        ) : null}
         <PressableScale
           onPress={() => setOpen(true)}
           scaleTo={0.98}
@@ -64,43 +83,52 @@ export function SpaceSwitcher() {
           <ChevronDown size={19} color={colors.textMuted} />
         </PressableScale>
 
-        <PressableScale
-          onPress={() => router.push("/notifications")}
-          scaleTo={0.9}
-          accessibilityRole="button"
-          accessibilityLabel={unread > 0 ? `Notifications, ${unread} non lues` : "Notifications"}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: radius.pill,
-            backgroundColor: colors.card,
-            borderWidth: 1,
-            borderColor: colors.border,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Bell size={20} color={colors.text} />
-          {unread > 0 ? (
-            <View
-              style={{
-                position: "absolute",
-                top: 8,
-                right: 8,
-                minWidth: 9,
-                height: 9,
-                borderRadius: 5,
-                backgroundColor: colors.primary,
-                borderWidth: 1.5,
-                borderColor: colors.card,
-              }}
-            />
-          ) : null}
-        </PressableScale>
+        <NotificationBell />
       </View>
 
       <SpacePicker visible={open} onClose={() => setOpen(false)} />
     </>
+  );
+}
+
+/** Round bell opening the notifications, with a dot while some are unread. */
+export function NotificationBell() {
+  const router = useRouter();
+  const unread = useUnreadCount();
+  return (
+    <PressableScale
+      onPress={() => router.push("/notifications")}
+      scaleTo={0.9}
+      accessibilityRole="button"
+      accessibilityLabel={unread > 0 ? `Notifications, ${unread} non lues` : "Notifications"}
+      style={{
+        width: 44,
+        height: 44,
+        borderRadius: radius.pill,
+        backgroundColor: colors.card,
+        borderWidth: 1,
+        borderColor: colors.border,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Bell size={20} color={colors.text} />
+      {unread > 0 ? (
+        <View
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            minWidth: 9,
+            height: 9,
+            borderRadius: 5,
+            backgroundColor: colors.primary,
+            borderWidth: 1.5,
+            borderColor: colors.card,
+          }}
+        />
+      ) : null}
+    </PressableScale>
   );
 }
 

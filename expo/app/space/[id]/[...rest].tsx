@@ -37,5 +37,5 @@ export default function SpaceSectionRedirect() {
   if (section === "recap") return <Redirect href="/recap" />;
   // "episodes" and anything unknown land on Moments, which now holds both the
   // space dashboard and the episode list.
-  return <Redirect href="/" />;
+  return <Redirect href="/aventure" />;
 }

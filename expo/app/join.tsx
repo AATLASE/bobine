@@ -50,7 +50,7 @@ function JoinForm({ initialCode }: { initialCode: string }) {
       select(result.spaceId);
       // Sets expectations before the space dashboard explains the role in full.
       toast.success(joinMessage(result));
-      router.replace("/");
+      router.replace("/aventure");
     } catch (error) {
       toast.error(friendlyError(error));
     } finally {

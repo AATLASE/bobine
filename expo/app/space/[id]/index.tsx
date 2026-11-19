@@ -30,5 +30,5 @@ export default function SpaceRedirect() {
     );
   }
 
-  return <Redirect href="/" />;
+  return <Redirect href="/aventure" />;
 }
