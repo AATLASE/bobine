@@ -159,7 +159,7 @@ export default function ResetPasswordScreen() {
             Nouveau mot de passe
           </AppText>
           <AppText variant="bodyMuted" center style={{ maxWidth: 300 }}>
-            Choisis un nouveau mot de passe pour ton compte Gather.
+            Choisis un nouveau mot de passe pour ton compte Bobine.
           </AppText>
         </View>
       </FadeIn>

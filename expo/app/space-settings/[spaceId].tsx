@@ -106,7 +106,7 @@ export default function SpaceSettingsScreen() {
           season_end: end ? end.toISOString() : null,
         },
       });
-      toast.success("Espace mis à jour");
+      toast.success("Bande mise à jour");
       router.back();
     } catch (e) {
       toast.error(friendlyError(e));
@@ -117,13 +117,13 @@ export default function SpaceSettingsScreen() {
 
   const confirmDelete = () => {
     confirmAction(
-      "Supprimer l'espace ?",
+      "Supprimer la bande ?",
       `« ${space.name} » et tout son contenu seront définitivement supprimés. Cette action est irréversible.`,
       "Supprimer",
       async () => {
         try {
           await deleteSpace.mutateAsync(spaceId);
-          toast.success("Espace supprimé");
+          toast.success("Bande supprimée");
           router.replace("/");
         } catch (e) {
           toast.error(friendlyError(e));
@@ -162,7 +162,7 @@ export default function SpaceSettingsScreen() {
         </TouchableOpacity>
 
         <View style={{ gap: spacing.lg }}>
-          <Field label="Nom de l'espace">
+          <Field label="Nom de la bande">
             <Input value={name} onChangeText={setName} />
           </Field>
           <Field label="Description">
@@ -187,8 +187,8 @@ export default function SpaceSettingsScreen() {
       <View style={{ marginTop: spacing.xxxl }}>
         <SectionHeader title="Zone de danger" />
         <Card style={{ borderColor: colors.destructiveSoft, gap: spacing.md }}>
-          <AppText variant="bodyMuted">La suppression efface tous les épisodes, reviews et médias de cet espace.</AppText>
-          <Button title="Supprimer l'espace" variant="destructive" icon={<Trash2 size={17} color="#fff" />} onPress={confirmDelete} loading={deleteSpace.isPending} />
+          <AppText variant="bodyMuted">La suppression efface tous les épisodes, reviews et médias de cette bande.</AppText>
+          <Button title="Supprimer la bande" variant="destructive" icon={<Trash2 size={17} color="#fff" />} onPress={confirmDelete} loading={deleteSpace.isPending} />
         </Card>
       </View>
 

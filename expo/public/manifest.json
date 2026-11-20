@@ -1,7 +1,7 @@
 {
-  "name": "Gather",
-  "short_name": "Gather",
-  "description": "Capture tes épisodes, invite tes proches et revis chaque saison de ta vie avec Gather.",
+  "name": "Bobine",
+  "short_name": "Bobine",
+  "description": "Vos sorties méritent leur propre série. Chaque moment devient un épisode, à revoir ensemble avec Bobine.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "/",
@@ -9,8 +9,8 @@
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
-  "theme_color": "#141416",
-  "background_color": "#141416",
+  "theme_color": "#151012",
+  "background_color": "#151012",
   "categories": ["social", "lifestyle", "photo"],
   "icons": [
     {

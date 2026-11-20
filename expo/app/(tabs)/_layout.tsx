@@ -36,7 +36,7 @@ export default function RootTabsLayout() {
       screenOptions={{
         tabBarPosition: wide ? "left" : "bottom",
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.primaryText,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
           backgroundColor: colors.bgDeep,

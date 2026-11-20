@@ -226,7 +226,7 @@ export function useDeleteEpisode(spaceId: string) {
       const { data, error } = await supabase.from("episodes").delete().eq("id", episodeId).select("id");
       if (error) throw error;
       if (!data || data.length === 0) {
-        throw new Error("Le serveur a refusé la suppression. Seuls le propriétaire de l'espace et l'auteur de l'épisode peuvent le supprimer.");
+        throw new Error("Le serveur a refusé la suppression. Seuls le propriétaire de la bande et l'auteur de l'épisode peuvent le supprimer.");
       }
 
       await removeStoredFiles([...(media ?? []).map((m) => m.url as string), ep?.cover_url as string | null]);

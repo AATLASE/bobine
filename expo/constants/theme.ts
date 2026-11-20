@@ -1,66 +1,68 @@
-import { Platform, TextStyle, ViewStyle } from "react-native";
+import { TextStyle, ViewStyle } from "react-native";
 
 /**
- * Gather — Netflix-inspired theme with dark & light palettes.
+ * Bobine : palette « Salle » (sombre) et « Jour » (clair), issue du système
+ * d'identité Bobine. Le rouge de marque #D7372A tient 4,7:1 avec du texte blanc
+ * (l'ancien #EF233C ne tenait que 4,2:1). Quand le rouge sert de couleur de
+ * texte, utiliser `primaryText`, plus lisible sur les fonds de chaque thème.
  * The exported `colors` object is mutable: `applyPalette()` swaps every value
  * in place so all inline styles pick up the active theme on re-render.
  */
 export type ThemeScheme = "dark" | "light";
 
 const darkColors = {
-  // Canvas
-  bg: "#141416",
-  bgDeep: "#0B0B0C",
-  bgElevated: "#1B1B1E",
+  // Canvas (noir de salle de cinéma, légèrement chaud)
+  bg: "#151012",
+  bgDeep: "#0E0A0B",
+  bgElevated: "#1C1517",
 
   // Surfaces
-  card: "#1C1C1F",
-  cardElevated: "#242428",
-  surface: "#2A2A2E",
+  card: "#221A1C",
+  cardElevated: "#2A2023",
+  surface: "#2E2427",
 
   // Lines
-  border: "#303034",
-  borderStrong: "#3D3D42",
-  // The field being typed in. Neutral on purpose: red means an error.
-  focus: "#C8C8CE",
+  border: "#33292B",
+  borderStrong: "#4A3E40",
+  // The field being typed in. Neutral on purpose: red means the brand.
+  focus: "#E8E0DA",
 
-  // Text
-  // `caption` (12px) and `overline` (11px) render in textFaint, so it carries
-  // real information (dates, counts, section labels) and must clear WCAG AA.
-  // The former #67676E measured 3.3:1 on bg and 3.0:1 on card — both failing.
-  text: "#F7F7F7",
-  textMuted: "#9B9BA2",
-  textFaint: "#8A8A92",
+  // Text (textFaint carries dates and counts: 6,8:1 on bg, 6,2:1 on card)
+  text: "#F4EEE6",
+  textMuted: "#BDB3AE",
+  textFaint: "#A39A95",
 
   // Brand
-  primary: "#EF233C",
-  primaryDark: "#C2182C",
-  primarySoft: "rgba(239,35,60,0.14)",
+  primary: "#D7372A",
+  primaryDark: "#B92F24",
+  primarySoft: "rgba(215,55,42,0.18)",
   primaryFg: "#FFFFFF",
+  // Red used as text or link color (6,7:1 on bg, 6,1:1 on card).
+  primaryText: "#FF6B57",
 
-  // Highlights
-  accent: "#CDBE57",
-  accentSoft: "rgba(205,190,87,0.16)",
+  // Highlights : le « soleil », le moment partagé
+  accent: "#F5C542",
+  accentSoft: "rgba(245,197,66,0.16)",
 
   // Status
-  success: "#3DD27E",
-  successSoft: "rgba(61,210,126,0.14)",
+  success: "#4FCB86",
+  successSoft: "rgba(79,203,134,0.14)",
   warning: "#E8A13A",
-  destructive: "#E63946",
-  destructiveSoft: "rgba(230,57,70,0.16)",
+  destructive: "#FF8A75",
+  destructiveSoft: "rgba(255,138,117,0.16)",
 
   // Poster blocks (bilan scellé, affiches sans photo): they stay dark in both
   // themes, so their text is always white rather than following `text`.
   heroFrom: "#3A1418",
   heroTo: "#1E1012",
   onHero: "#FFFFFF",
-  onHeroMuted: "rgba(255,255,255,0.7)",
+  onHeroMuted: "rgba(255,255,255,0.72)",
   // Top of the sign-in and splash backgrounds, fading into `bg`.
-  brandGlow: "#2A0E13",
+  brandGlow: "#2E1210",
 
   // Misc
   overlay: "rgba(0,0,0,0.6)",
-  scrim: "rgba(10,10,12,0.92)",
+  scrim: "rgba(14,10,11,0.92)",
   white: "#FFFFFF",
   black: "#000000",
 };
@@ -68,56 +70,55 @@ const darkColors = {
 export type Palette = { [K in keyof typeof darkColors]: string };
 
 const lightColors: Palette = {
-  // Canvas
-  bg: "#F4F4F6",
-  bgDeep: "#EAEAEE",
+  // Canvas (papier chaud)
+  bg: "#FBF6EE",
+  bgDeep: "#F3EBDF",
   bgElevated: "#FFFFFF",
 
   // Surfaces
   card: "#FFFFFF",
   cardElevated: "#FFFFFF",
-  surface: "#EBEBEF",
+  surface: "#F3EBDF",
 
   // Lines
-  border: "#E2E2E8",
-  borderStrong: "#CFCFD7",
-  focus: "#1B1B1F",
+  border: "#E6DCCF",
+  borderStrong: "#CFC2B2",
+  focus: "#1E1416",
 
-  // Text
-  // Light mode was the worse offender: textFaint measured 2.5:1 on bg. Muted is
-  // darkened alongside it so the muted → faint hierarchy survives the fix.
-  text: "#1B1B1F",
-  textMuted: "#5A5A64",
-  textFaint: "#6C6C76",
+  // Text (textFaint: 5,5:1 on bg, 5:1 on surface)
+  text: "#1E1416",
+  textMuted: "#574B48",
+  textFaint: "#6E625E",
 
   // Brand
-  primary: "#E11D33",
-  primaryDark: "#B9152A",
-  primarySoft: "rgba(225,29,51,0.10)",
+  primary: "#D7372A",
+  primaryDark: "#B92F24",
+  primarySoft: "rgba(215,55,42,0.10)",
   primaryFg: "#FFFFFF",
+  primaryText: "#B3261E",
 
-  // Highlights
-  accent: "#A8912E",
-  accentSoft: "rgba(168,145,46,0.14)",
+  // Highlights (doré lisible en texte sur papier)
+  accent: "#8C6A10",
+  accentSoft: "rgba(245,197,66,0.22)",
 
   // Status
-  success: "#1FA85D",
-  successSoft: "rgba(31,168,93,0.12)",
-  warning: "#C97F16",
-  destructive: "#D62839",
-  destructiveSoft: "rgba(214,40,57,0.10)",
+  success: "#2E7D4F",
+  successSoft: "rgba(46,125,79,0.12)",
+  warning: "#B26A0E",
+  destructive: "#A4161A",
+  destructiveSoft: "rgba(164,22,26,0.10)",
 
   // Poster blocks: same as dark on purpose (see darkColors).
   heroFrom: "#3A1418",
   heroTo: "#1E1012",
   onHero: "#FFFFFF",
-  onHeroMuted: "rgba(255,255,255,0.7)",
+  onHeroMuted: "rgba(255,255,255,0.72)",
   // The dark bordeaux sat behind dark text here; a light tint keeps the glow.
-  brandGlow: "#F6DCE0",
+  brandGlow: "#F9DDD8",
 
   // Misc
-  overlay: "rgba(15,15,20,0.45)",
-  scrim: "rgba(20,20,24,0.88)",
+  overlay: "rgba(30,20,22,0.45)",
+  scrim: "rgba(30,20,22,0.88)",
   white: "#FFFFFF",
   black: "#000000",
 };
@@ -157,41 +158,67 @@ export const spacing = {
   xxxl: 40,
 } as const;
 
-const fontFamily = Platform.select({ ios: "System", android: "sans-serif", default: "System" });
-
+/**
+ * Polices Bobine, chargées dans app/_layout.tsx avec @expo-google-fonts.
+ * Une famille par graisse : Android ignore fontWeight sur une police chargée,
+ * donc chaque style nomme directement la bonne graisse.
+ */
 export const fonts = {
-  black: Platform.select({ ios: "System", android: "sans-serif", default: "System" }),
-  family: fontFamily,
+  /** Titres : Bricolage Grotesque. */
+  display: "BricolageGrotesque_800ExtraBold",
+  displayBold: "BricolageGrotesque_700Bold",
+  /** Texte : Figtree. */
+  regular: "Figtree_400Regular",
+  medium: "Figtree_500Medium",
+  semibold: "Figtree_600SemiBold",
+  bold: "Figtree_700Bold",
+  extrabold: "Figtree_800ExtraBold",
+  /** Avis révélés et légendes uniquement : Gochi Hand. */
+  hand: "GochiHand_400Regular",
+  /** Kept for older call sites: the default text family. */
+  family: "Figtree_500Medium",
+  black: "BricolageGrotesque_800ExtraBold",
 } as const;
+
+/** The Figtree file matching a fontWeight, so `weight` props keep working. */
+export function textFontFor(weight?: TextStyle["fontWeight"]): string {
+  const w = typeof weight === "number" ? weight : parseInt(String(weight ?? "500"), 10) || (weight === "bold" ? 700 : 500);
+  if (w >= 800) return fonts.extrabold;
+  if (w >= 700) return fonts.bold;
+  if (w >= 600) return fonts.semibold;
+  if (w >= 500) return fonts.medium;
+  return fonts.regular;
+}
 
 /** Getter-based so text colors always follow the active palette. */
 export const type = {
   get display(): TextStyle {
-    return { fontSize: 34, lineHeight: 38, fontWeight: "800" as const, letterSpacing: -0.8, color: colors.text };
+    return { fontFamily: fonts.display, fontSize: 34, lineHeight: 38, fontWeight: "800" as const, letterSpacing: -0.8, color: colors.text };
   },
   get title(): TextStyle {
-    return { fontSize: 26, lineHeight: 30, fontWeight: "800" as const, letterSpacing: -0.6, color: colors.text };
+    return { fontFamily: fonts.display, fontSize: 26, lineHeight: 30, fontWeight: "800" as const, letterSpacing: -0.6, color: colors.text };
   },
   get h2(): TextStyle {
-    return { fontSize: 20, lineHeight: 25, fontWeight: "700" as const, letterSpacing: -0.3, color: colors.text };
+    return { fontFamily: fonts.displayBold, fontSize: 20, lineHeight: 25, fontWeight: "700" as const, letterSpacing: -0.3, color: colors.text };
   },
   get h3(): TextStyle {
-    return { fontSize: 17, lineHeight: 22, fontWeight: "700" as const, letterSpacing: -0.2, color: colors.text };
+    return { fontFamily: fonts.displayBold, fontSize: 17, lineHeight: 22, fontWeight: "700" as const, letterSpacing: -0.2, color: colors.text };
   },
   get body(): TextStyle {
-    return { fontSize: 15, lineHeight: 21, fontWeight: "500" as const, color: colors.text };
+    return { fontFamily: fonts.medium, fontSize: 15, lineHeight: 21, fontWeight: "500" as const, color: colors.text };
   },
   get bodyMuted(): TextStyle {
-    return { fontSize: 15, lineHeight: 21, fontWeight: "500" as const, color: colors.textMuted };
+    return { fontFamily: fonts.medium, fontSize: 15, lineHeight: 21, fontWeight: "500" as const, color: colors.textMuted };
   },
   get label(): TextStyle {
-    return { fontSize: 13, lineHeight: 17, fontWeight: "600" as const, color: colors.textMuted };
+    return { fontFamily: fonts.semibold, fontSize: 13, lineHeight: 17, fontWeight: "600" as const, color: colors.textMuted };
   },
   get caption(): TextStyle {
-    return { fontSize: 12, lineHeight: 15, fontWeight: "600" as const, letterSpacing: 0.2, color: colors.textFaint };
+    return { fontFamily: fonts.semibold, fontSize: 12, lineHeight: 15, fontWeight: "600" as const, letterSpacing: 0.2, color: colors.textFaint };
   },
   get overline(): TextStyle {
     return {
+      fontFamily: fonts.bold,
       fontSize: 11,
       lineHeight: 14,
       fontWeight: "700" as const,

@@ -1,4 +1,14 @@
+import { BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold } from "@expo-google-fonts/bricolage-grotesque";
+import {
+  Figtree_400Regular,
+  Figtree_500Medium,
+  Figtree_600SemiBold,
+  Figtree_700Bold,
+  Figtree_800ExtraBold,
+} from "@expo-google-fonts/figtree";
+import { GochiHand_400Regular } from "@expo-google-fonts/gochi-hand";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { useFonts } from "expo-font";
 import * as Linking from "expo-linking";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -7,6 +17,7 @@ import React, { useEffect, useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { BrandMark } from "@/components/Brand";
 import { BrandSplash } from "@/components/BrandSplash";
 import { InstallBanner } from "@/components/InstallBanner";
 import { UploadStatus } from "@/components/UploadStatus";
@@ -145,9 +156,7 @@ function ConfigMissing() {
     <View style={styles.configRoot}>
       <StatusBar style="light" />
       <View style={styles.configBadge}>
-        <AppText variant="display" color={colors.primary}>
-          G
-        </AppText>
+        <BrandMark size={56} glow={false} />
       </View>
       <AppText variant="h2" center style={styles.configTitle}>
         Configuration en cours
@@ -161,12 +170,27 @@ function ConfigMissing() {
 }
 
 export default function RootLayout() {
+  // Polices Bobine. On native the splash screen stays up until they load; on
+  // web the page renders at once and the fonts swap in.
+  const [fontsLoaded, fontError] = useFonts({
+    BricolageGrotesque_700Bold,
+    BricolageGrotesque_800ExtraBold,
+    Figtree_400Regular,
+    Figtree_500Medium,
+    Figtree_600SemiBold,
+    Figtree_700Bold,
+    Figtree_800ExtraBold,
+    GochiHand_400Regular,
+  });
+
   // Installability + offline shell on web. No-op on native.
   useEffect(() => {
     registerServiceWorker();
     // Photos left over from a previous session go out now.
     startUploadQueue();
   }, []);
+
+  if (!fontsLoaded && !fontError && Platform.OS !== "web") return null;
 
   if (!hasSupabaseConfig) {
     return (

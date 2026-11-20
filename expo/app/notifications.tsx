@@ -41,7 +41,7 @@ export default function NotificationsScreen() {
           hasUnread ? (
             <PressableScale onPress={() => markAll.mutate()} withHaptic={false} style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
               <CheckCheck size={16} color={colors.primary} />
-              <AppText style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>Tout lu</AppText>
+              <AppText style={{ color: colors.primaryText, fontWeight: "700", fontSize: 13 }}>Tout lu</AppText>
             </PressableScale>
           ) : undefined
         }
@@ -50,7 +50,7 @@ export default function NotificationsScreen() {
       {isLoading ? (
         <Loader label="Chargement…" />
       ) : !notifications || notifications.length === 0 ? (
-        <EmptyState icon={<Inbox size={30} color={colors.primary} />} title="Rien de neuf" subtitle="Les nouveautés de tes espaces (épisodes, commentaires, idées, déverrouillages) apparaîtront ici." />
+        <EmptyState icon={<Inbox size={30} color={colors.primary} />} title="Rien de neuf" subtitle="Les nouveautés de tes bandes (épisodes, commentaires, idées, déverrouillages) apparaîtront ici." />
       ) : (
         <View style={{ gap: spacing.sm, marginTop: spacing.sm }}>
           {notifications.map((n, i) => {

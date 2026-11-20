@@ -5,7 +5,7 @@ import { colors } from "@/constants/theme";
 import { Profile } from "@/lib/types";
 import { AppText } from "./Text";
 
-const AVATAR_COLORS = ["#EF233C", "#CDBE57", "#3DD27E", "#5B8DEF", "#B05BEF", "#EF8C5B", "#3DC9D2"];
+const AVATAR_COLORS = ["#D7372A", "#F5C542", "#3DD27E", "#5B8DEF", "#B05BEF", "#EF8C5B", "#3DC9D2"];
 
 function hashString(str: string): number {
   let h = 0;

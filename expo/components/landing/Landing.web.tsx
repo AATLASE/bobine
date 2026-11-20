@@ -18,7 +18,7 @@ type Href = "/signup" | "/login";
 const FONTS_HREF =
   "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Figtree:ital,wght@0,400..700;1,400&family=Gochi+Hand&display=swap";
 
-const PAGE_TITLE = "Gather · Vos sorties méritent leur propre série";
+const PAGE_TITLE = "Bobine · Vos sorties méritent leur propre série";
 
 function useFonts() {
   useEffect(() => {
@@ -57,11 +57,11 @@ function prefersReducedMotion(): boolean {
 const STEPS = [
   {
     n: "1",
-    title: "Crée ton espace",
-    body: "Un espace, c'est ton groupe : ton couple, ta bande ou ta famille. Il a sa propre couverture, comme une affiche de série.",
+    title: "Crée ta bande",
+    body: "Une bande, c'est ton groupe : ton couple, tes amis ou ta famille. Elle a sa propre couverture, comme une affiche de série.",
     img: "/landing/step-space.webp",
     alt: "Quatre amis souriants, bras dessus bras dessous dans un parc en automne",
-    tag: "Espace",
+    tag: "Bande",
   },
   {
     n: "2",
@@ -114,23 +114,23 @@ const REVIEWS = [
 const FAQ = [
   {
     q: "C'est vraiment gratuit ?",
-    a: "Oui. Tu crées ton compte, tes espaces et tes épisodes sans payer quoi que ce soit.",
+    a: "Oui. Tu crées ton compte, tes bandes et tes épisodes sans payer quoi que ce soit.",
   },
   {
     q: "Qui peut voir nos épisodes ?",
-    a: "Uniquement les membres de ton espace. Pas de profil public, pas de recherche, pas d'inconnus : un espace ne s'ouvre qu'avec une invitation.",
+    a: "Uniquement les membres de ta bande. Pas de profil public, pas de recherche, pas d'inconnus : une bande ne s'ouvre qu'avec une invitation.",
   },
   {
     q: "Participant ou observateur, quelle différence ?",
     a: "Les participants créent des épisodes et écrivent leur review. Les observateurs suivent l'aventure et voient tout, sans avoir à écrire.",
   },
   {
-    q: "Je peux avoir plusieurs espaces ?",
-    a: "Oui : un pour ton couple, un pour ta bande, un pour la famille. Tu passes de l'un à l'autre en un geste.",
+    q: "Je peux avoir plusieurs bandes ?",
+    a: "Oui : une pour ton couple, une pour tes amis, une pour la famille. Tu passes de l'une à l'autre en un geste.",
   },
   {
     q: "Faut-il télécharger une application ?",
-    a: "Non. Gather fonctionne dans le navigateur, et tu peux l'ajouter à ton écran d'accueil pour l'ouvrir comme une vraie app.",
+    a: "Non. Bobine fonctionne dans le navigateur, et tu peux l'ajouter à ton écran d'accueil pour l'ouvrir comme une vraie app.",
   },
 ];
 
@@ -158,11 +158,26 @@ function Avatar({ name, hue, size = "md" }: { name: string; hue: number; size?: 
   );
 }
 
+/** Le symbole Bobine : une bobine, cinq places autour d'un moment partagé. */
+const REEL_PATH = "M0.00,50.00a50.00,50.00 0 1,0 100.00,0a50.00,50.00 0 1,0 -100.00,0ZM39.25,22.00a10.75,10.75 0 1,0 21.50,0a10.75,10.75 0 1,0 -21.50,0ZM65.88,41.35a10.75,10.75 0 1,0 21.50,0a10.75,10.75 0 1,0 -21.50,0ZM55.71,72.65a10.75,10.75 0 1,0 21.50,0a10.75,10.75 0 1,0 -21.50,0ZM22.79,72.65a10.75,10.75 0 1,0 21.50,0a10.75,10.75 0 1,0 -21.50,0ZM12.62,41.35a10.75,10.75 0 1,0 21.50,0a10.75,10.75 0 1,0 -21.50,0Z";
+
 function Mark({ className }: { className?: string }) {
   return (
-    <span className={`gl-mark ${className ?? ""}`} aria-hidden="true">
-      G
-    </span>
+    <svg className={`gl-mark ${className ?? ""}`} viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <path className="gl-mark__disk" d={REEL_PATH} fillRule="evenodd" />
+      <circle className="gl-mark__hub" cx="50" cy="50" r="7.5" />
+    </svg>
+  );
+}
+
+/** Le logotype « bobine », dont le premier « o » est le symbole. */
+function Logotype({ className }: { className?: string }) {
+  return (
+    <svg className={`gl-logotype ${className ?? ""}`} viewBox="-6 0 354.4 120.0" role="img" aria-label="Bobine">
+      <path d="M39.6 96.4Q34.6 96.4 30.85 94.5Q27.1 92.6 24.75 88.8Q22.40 85.0 21.6 79.4H19.70L19.40 95.0H6.2V69.1V23.0H22.3V40.5Q22.3 42.9 21.95 45.55Q21.6 48.19 21.05 51.09Q20.5 54.0 19.90 57.3H22.20Q23.6 51.9 25.90 48.3Q28.20 44.69 31.65 42.84Q35.1 41.0 39.80 41.0Q46.40 41.0 51.25 44.4Q56.1 47.8 58.8 54.05Q61.5 60.3 61.5 69.0Q61.5 77.4 58.85 83.55Q56.2 89.7 51.30 93.05Q46.40 96.4 39.6 96.4ZM33.6 83.4Q36.9 83.4 39.40 81.55Q41.90 79.7 43.25 76.35Q44.6 73.0 44.6 68.5Q44.6 63.9 43.3 60.65Q42.0 57.4 39.65 55.59Q37.30 53.8 34.0 53.8Q31.8 53.8 29.95 54.59Q28.1 55.4 26.70 56.8Q25.3 58.19 24.3 59.94Q23.3 61.69 22.8 63.64Q22.3 65.6 22.3 67.5V69.6Q22.3 71.7 22.9 74.1Q23.5 76.5 24.85 78.6Q26.20 80.7 28.35 82.05Q30.5 83.4 33.6 83.4Z M165.6 96.4Q160.6 96.4 156.85 94.5Q153.1 92.6 150.75 88.8Q148.4 85.0 147.6 79.4H145.7L145.4 95.0H132.2V69.1V23.0H148.3V40.5Q148.3 42.9 147.95 45.55Q147.6 48.19 147.05 51.09Q146.5 54.0 145.9 57.3H148.2Q149.6 51.9 151.89 48.3Q154.2 44.69 157.64 42.84Q161.1 41.0 165.8 41.0Q172.4 41.0 177.25 44.4Q182.1 47.8 184.8 54.05Q187.5 60.3 187.5 69.0Q187.5 77.4 184.85 83.55Q182.2 89.7 177.3 93.05Q172.4 96.4 165.6 96.4ZM159.6 83.4Q162.9 83.4 165.4 81.55Q167.9 79.7 169.25 76.35Q170.6 73.0 170.6 68.5Q170.6 63.9 169.3 60.65Q168.0 57.4 165.65 55.59Q163.3 53.8 160.0 53.8Q157.8 53.8 155.95 54.59Q154.1 55.4 152.7 56.8Q151.3 58.19 150.3 59.94Q149.3 61.69 148.8 63.64Q148.3 65.6 148.3 67.5V69.6Q148.3 71.7 148.9 74.1Q149.5 76.5 150.85 78.6Q152.2 80.7 154.35 82.05Q156.5 83.4 159.6 83.4Z M197.0 95.0V42.19H213.10V95.0ZM205.10 34.80Q200.50 34.80 198.05 32.85Q195.60 30.90 195.60 27.29Q195.60 23.5 198.05 21.55Q200.50 19.60 205.10 19.60Q209.8 19.60 212.25 21.55Q214.70 23.5 214.70 27.20Q214.70 30.90 212.25 32.85Q209.8 34.80 205.10 34.80Z M225.6 95.0V63.2V42.19H238.60L238.8 57.69H240.8Q242.10 52.09 244.5 48.3Q246.9 44.5 250.60 42.65Q254.3 40.8 259.3 40.8Q268.6 40.8 273.45 47.3Q278.3 53.8 278.3 68.0V95.0H262.1V69.8Q262.1 61.6 259.75 57.84Q257.4 54.09 252.8 54.09Q249.0 54.09 246.55 56.39Q244.10 58.69 242.90 62.5Q241.70 66.3 241.70 71.0V95.0Z M315.0 96.4Q308.4 96.4 303.2 94.65Q298.0 92.9 294.35 89.5Q290.7 86.1 288.79 81.1Q286.9 76.1 286.9 69.6Q286.9 63.3 288.75 58.0Q290.59 52.69 294.04 48.84Q297.5 45.0 302.54 42.9Q307.59 40.8 313.9 40.8Q320.3 40.8 325.15 42.84Q330.0 44.9 333.15 48.9Q336.3 52.9 337.8 58.65Q339.3 64.4 338.8 71.8L297.5 72.1V63.7L329.6 63.4L323.9 67.3Q324.6 62.3 323.3 59.15Q322.0 56.0 319.5 54.55Q317.0 53.09 314.09 53.09Q310.59 53.09 307.95 55.0Q305.3 56.9 303.8 60.5Q302.3 64.1 302.3 69.3Q302.3 77.5 305.85 81.2Q309.4 84.9 314.9 84.9Q317.59 84.9 319.4 84.15Q321.2 83.4 322.35 82.25Q323.5 81.1 324.15 79.69Q324.8 78.3 325.2 77.0L339.2 80.0Q338.4 83.7 336.65 86.7Q334.9 89.7 331.95 91.9Q329.0 94.1 324.85 95.25Q320.7 96.4 315.0 96.4Z" fill="currentColor" />
+      <path className="gl-mark__disk" d="M66.49,68.60a28.91,28.91 0 1,0 57.82,0a28.91,28.91 0 1,0 -57.82,0ZM89.18,52.41a6.22,6.22 0 1,0 12.43,0a6.22,6.22 0 1,0 -12.43,0ZM104.58,63.60a6.22,6.22 0 1,0 12.43,0a6.22,6.22 0 1,0 -12.43,0ZM98.70,81.70a6.22,6.22 0 1,0 12.43,0a6.22,6.22 0 1,0 -12.43,0ZM79.67,81.70a6.22,6.22 0 1,0 12.43,0a6.22,6.22 0 1,0 -12.43,0ZM73.79,63.60a6.22,6.22 0 1,0 12.43,0a6.22,6.22 0 1,0 -12.43,0Z" fillRule="evenodd" />
+      <circle className="gl-mark__hub" cx="95.40" cy="68.60" r="4.34" />
+    </svg>
   );
 }
 
@@ -237,9 +252,9 @@ export default function Landing() {
 
       <header className={`gl-nav${scrolled ? " is-scrolled" : ""}`}>
         <div className="gl-wrap gl-nav__inner">
-          <a className="gl-logo" href="/" aria-label="Gather, accueil" onClick={(e) => { e.preventDefault(); scroller.current?.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" }); }}>
-            <Mark />
-            <span className="gl-logo__word">Gather</span>
+          <a className="gl-logo" href="/" aria-label="Bobine, accueil" onClick={(e) => { e.preventDefault(); scroller.current?.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" }); }}>
+            <Mark className="gl-logo__mark" />
+            <Logotype className="gl-logo__word" />
           </a>
           <nav className="gl-nav__links" aria-label="Sections de la page">
             <button type="button" onClick={() => scrollTo("comment")}>Comment ça marche</button>
@@ -271,10 +286,9 @@ export default function Landing() {
       <footer className="gl-footer">
         <div className="gl-wrap gl-footer__inner">
           <div className="gl-footer__brand">
-            <Mark />
             <p>
-              <strong>Gather</strong>
-              <span>Vos moments, en série.</span>
+              <Logotype className="gl-footer__logo" />
+              <span>Vos sorties méritent leur propre série.</span>
             </p>
           </div>
           <nav className="gl-footer__links" aria-label="Compte">
@@ -307,7 +321,7 @@ function Hero({ go, install }: { go: Go; install: LandingInstall }) {
             Vos sorties méritent leur propre <span className="gl-hl">série.</span>
           </h1>
           <p className="gl-lede">
-            Gather transforme chaque dîner, rando ou concert en épisode. Vous ajoutez les photos, chacun écrit son avis en
+            Bobine transforme chaque dîner, rando ou concert en épisode. Vous ajoutez les photos, chacun écrit son avis en
             secret, et tout se révèle d&apos;un coup. Saison après saison, votre histoire se regarde comme une série.
           </p>
           <div className="gl-ctas">
@@ -322,11 +336,11 @@ function Hero({ go, install }: { go: Go; install: LandingInstall }) {
           </div>
           <p className="gl-hero__note">
             <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 9V7a4 4 0 1 1 8 0v2m-9 0h10v8H5z" /></svg>
-            Privé : seuls tes invités voient ton espace.
+            Privé : seuls tes invités voient ta bande.
           </p>
         </div>
 
-        <div className="gl-collage" aria-label="Quelques épisodes de groupes Gather">
+        <div className="gl-collage" aria-label="Quelques épisodes de groupes Bobine">
           <figure className="gl-polaroid gl-polaroid--a" style={{ "--r": "-4deg", "--d": "120ms" } as React.CSSProperties}>
             <img src="/landing/hero-rooftop.webp" alt="Une bande d'amis fait un selfie sur un toit au soleil, tout le monde éclate de rire" width={1100} height={1240} fetchPriority="high" />
             <figcaption>S2 · É7 : le rooftop</figcaption>
@@ -374,7 +388,7 @@ function Steps() {
             Quatre étapes, zéro prise de tête.
           </h2>
           <p className="gl-section-head__text">
-            Trois mots à retenir : <b>espace</b>, <b>épisode</b>, <b>saison</b>. Le reste, c&apos;est vous qui l&apos;écrivez.
+            Trois mots à retenir : <b>bande</b>, <b>épisode</b>, <b>saison</b>. Le reste, c&apos;est vous qui l&apos;écrivez.
           </p>
         </header>
       </div>
@@ -582,15 +596,15 @@ function Private() {
             Privé, entre vous.
           </h2>
           <p className="gl-body-lg">
-            Pas de likes, pas d&apos;abonnés, pas d&apos;inconnus. Seules les personnes que tu invites voient ton espace,
+            Pas de likes, pas d&apos;abonnés, pas d&apos;inconnus. Seules les personnes que tu invites voient ta bande,
             et chacun choisit de participer ou simplement de suivre l&apos;aventure.
           </p>
           <ul className="gl-who" aria-label="Pour qui">
             <li><span>Ton couple</span></li>
-            <li><span>Ta bande</span></li>
+            <li><span>Tes amis</span></li>
             <li><span>Ta famille</span></li>
           </ul>
-          <p className="gl-body">Ou les trois : un espace pour chacun, et tu passes de l&apos;un à l&apos;autre en un geste.</p>
+          <p className="gl-body">Ou les trois : une bande pour chacun, et tu passes de l&apos;une à l&apos;autre en un geste.</p>
         </div>
       </div>
     </section>
@@ -626,13 +640,13 @@ function Faq({ install }: { install: LandingInstall }) {
         </div>
 
         <aside className="gl-install" aria-labelledby="install-title" data-reveal>
-          <h3 id="install-title" className="gl-h3">Gather sur ton téléphone</h3>
-          <p>Pas besoin de passer par un store : ajoute Gather à ton écran d&apos;accueil, il s&apos;ouvre comme une app.</p>
+          <h3 id="install-title" className="gl-h3">Bobine sur ton téléphone</h3>
+          <p>Pas besoin de passer par un store : ajoute Bobine à ton écran d&apos;accueil, il s&apos;ouvre comme une app.</p>
           <div className="gl-install__cols">
             <div>
               <p className="gl-install__os">iPhone, avec Safari</p>
               <ol>
-                <li><span>Ouvre Gather dans Safari</span></li>
+                <li><span>Ouvre Bobine dans Safari</span></li>
                 <li><span>Touche le bouton <b>Partager</b></span></li>
                 <li><span>Choisis <b>Sur l&apos;écran d&apos;accueil</b></span></li>
               </ol>
@@ -640,13 +654,13 @@ function Faq({ install }: { install: LandingInstall }) {
             <div>
               <p className="gl-install__os">Android, avec Chrome</p>
               <ol>
-                <li><span>Ouvre Gather dans Chrome</span></li>
+                <li><span>Ouvre Bobine dans Chrome</span></li>
                 <li><span>Touche le menu <b aria-label="trois points">⋮</b></span></li>
                 <li><span>Choisis <b>Installer l&apos;application</b></span></li>
               </ol>
             </div>
           </div>
-          <InstallButton install={install} className="gl-btn--ink gl-install__cta" label="Ajouter Gather maintenant" />
+          <InstallButton install={install} className="gl-btn--ink gl-install__cta" label="Ajouter Bobine maintenant" />
         </aside>
       </div>
     </section>
@@ -665,7 +679,7 @@ function FinalCta({ go }: { go: Go }) {
           <h2 id="final-title" className="gl-h2 gl-final__title">
             Ta prochaine saison commence ce soir.
           </h2>
-          <p className="gl-body-lg">Crée ton espace en une minute, invite ta bande et lance le premier épisode.</p>
+          <p className="gl-body-lg">Crée ta bande en une minute, invite tes proches et lance le premier épisode.</p>
           <div className="gl-ctas">
             <a className="gl-btn gl-btn--paper gl-btn--lg" href="/signup" onClick={go("/signup")}>
               Créer un compte gratuit

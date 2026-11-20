@@ -66,7 +66,7 @@ async function insertSpaceInviteCode(spaceId: string, userId: string, role: Invi
     const existing = await readSpaceInviteCode(spaceId, role);
     if (existing) return existing;
   }
-  throw new Error("Impossible de générer le code de l'espace. Réessaie.");
+  throw new Error("Impossible de générer le code de la bande. Réessaie.");
 }
 
 /** Returns the space's code for a role, creating it on the fly if it has none yet. */

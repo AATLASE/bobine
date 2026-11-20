@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "Gather",
+    "name": "Bobine",
     "slug": "jy0ai6r2cyb3uwixfwgm3",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rork-app",
     "userInterfaceStyle": "automatic",
-    "backgroundColor": "#141416",
+    "backgroundColor": "#151012",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#141416"
+      "backgroundColor": "#151012"
     },
     "ios": {
       "supportsTablet": false,
@@ -21,7 +21,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#141416"
+        "backgroundColor": "#D7372A"
       },
       "package": "app.rork.jy0ai6r2cyb3uwixfwgm3"
     },
@@ -43,14 +43,14 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Gather accède à tes photos pour les ajouter à tes épisodes.",
-          "cameraPermission": "Gather accède à la caméra pour capturer tes moments."
+          "photosPermission": "Bobine accède à tes photos pour les ajouter à tes épisodes.",
+          "cameraPermission": "Bobine accède à la caméra pour capturer tes moments."
         }
       ],
       [
         "expo-notifications",
         {
-          "color": "#EF233C"
+          "color": "#D7372A"
         }
       ]
     ],

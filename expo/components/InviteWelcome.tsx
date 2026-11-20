@@ -31,7 +31,7 @@ export function InviteWelcome({ code }: { code: string }) {
       : `Tu es invité·e dans « ${preview.spaceName} »`
     : invalid
       ? "Cette invitation n'est plus valide"
-      : "Tu es invité·e sur Gather";
+      : "Tu es invité·e sur Bobine";
 
   const subtitle = preview
     ? preview.role === "member"
@@ -39,7 +39,7 @@ export function InviteWelcome({ code }: { code: string }) {
       : "Tu suis l'aventure : les épisodes, les photos et les reviews une fois révélées."
     : invalid
       ? "Le code a peut-être changé. Demande un nouveau lien à la personne qui t'a invité·e. Tu peux quand même créer ton compte."
-      : "Un espace privé t'attend, pour garder et revivre vos moments ensemble.";
+      : "Une bande privée t'attend, pour garder et revivre vos moments ensemble.";
 
   return (
     <AuthScaffold>
@@ -89,7 +89,7 @@ export function InviteWelcome({ code }: { code: string }) {
         <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: spacing.xl }}>
           <AppText variant="bodyMuted">Déjà un compte ?</AppText>
           <TouchableOpacity onPress={() => router.push("/login")} hitSlop={8}>
-            <AppText style={{ color: colors.primary, fontWeight: "700" }}>Se connecter</AppText>
+            <AppText style={{ color: colors.primaryText, fontWeight: "700" }}>Se connecter</AppText>
           </TouchableOpacity>
         </View>
       </FadeIn>

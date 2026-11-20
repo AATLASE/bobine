@@ -22,7 +22,7 @@ function CommentBody({ body, people }: { body: string; people: MentionCandidate[
     <AppText variant="body">
       {parts.map((part, i) =>
         part.mention ? (
-          <AppText key={i} style={{ color: colors.primary, fontWeight: "700" }}>
+          <AppText key={i} style={{ color: colors.primaryText, fontWeight: "700" }}>
             {part.text}
           </AppText>
         ) : (
@@ -90,7 +90,7 @@ export function CommentItem({
             {Object.entries(grouped).map(([emoji, info]) => (
               <PressableScale key={emoji} onPress={() => onReact(comment.id, emoji, info.mine)} withHaptic style={{ flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 9, paddingVertical: 4, borderRadius: radius.pill, backgroundColor: info.mine ? colors.primarySoft : colors.surface, borderWidth: info.mine ? 1 : 0, borderColor: colors.primary }}>
                 <AppText style={{ fontSize: 13 }}>{emoji}</AppText>
-                <AppText style={{ fontSize: 12, fontWeight: "700", color: info.mine ? colors.primary : colors.textMuted }}>{info.count}</AppText>
+                <AppText style={{ fontSize: 12, fontWeight: "700", color: info.mine ? colors.primaryText : colors.textMuted }}>{info.count}</AppText>
               </PressableScale>
             ))}
             {/* A smiley rather than a bare "+": the plus said "add something", the

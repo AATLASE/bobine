@@ -78,7 +78,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       try {
         if (Platform.OS === "android") {
           await Notifications.setNotificationChannelAsync("default", {
-            name: "Gather",
+            name: "Bobine",
             importance: Notifications.AndroidImportance.DEFAULT,
             lightColor: colors.primary,
             vibrationPattern: [0, 120, 80, 120],

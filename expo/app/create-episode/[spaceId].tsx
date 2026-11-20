@@ -149,7 +149,7 @@ export default function CreateEpisodeScreen() {
           </View>
           <AppText variant="h2" center>Tu es observateur</AppText>
           <AppText variant="bodyMuted" center style={{ maxWidth: 300 }}>
-            Tu peux voir l&apos;espace, aimer les épisodes et les commenter une fois révélés. Pour ajouter
+            Tu peux voir la bande, aimer les épisodes et les commenter une fois révélés. Pour ajouter
             des épisodes et écrire ta review, demande au propriétaire le lien participant.
           </AppText>
           <Button title="J'ai compris" variant="secondary" onPress={() => router.back()} style={{ marginTop: spacing.sm }} />
@@ -322,7 +322,7 @@ export default function CreateEpisodeScreen() {
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 7, marginTop: spacing.sm }}>
                 {tags.map((t) => (
                   <TouchableOpacity key={t} onPress={() => setTags((prev) => prev.filter((x) => x !== t))} style={{ flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: colors.primarySoft, paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.pill }}>
-                    <AppText style={{ color: colors.primary, fontWeight: "600", fontSize: 13 }}>{t}</AppText>
+                    <AppText style={{ color: colors.primaryText, fontWeight: "600", fontSize: 13 }}>{t}</AppText>
                     <X size={12} color={colors.primary} />
                   </TouchableOpacity>
                 ))}

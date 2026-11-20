@@ -69,16 +69,16 @@ function JoinForm({ initialCode }: { initialCode: string }) {
           <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: colors.primarySoft, alignItems: "center", justifyContent: "center" }}>
             <Ticket size={36} color={colors.primary} />
           </View>
-          <AppText variant="title" center>Rejoindre un espace</AppText>
+          <AppText variant="title" center>Rejoindre une bande</AppText>
           <AppText variant="bodyMuted" center style={{ maxWidth: 300 }}>
-            Entre le code de l&apos;espace que t&apos;a partagé un membre de l&apos;aventure.
+            Entre le code de la bande que t&apos;a partagé un membre de l&apos;aventure.
           </AppText>
         </View>
       </FadeIn>
 
       <FadeIn delay={120}>
         <Card elevated style={{ gap: spacing.lg }}>
-          <Field label="Code de l'espace" error={codeError}>
+          <Field label="Code de la bande" error={codeError}>
             <Input
               placeholder="Ex. K7M2QX9"
               autoCapitalize="characters"

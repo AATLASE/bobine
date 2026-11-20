@@ -41,9 +41,9 @@ export function SpaceSwitcher({ onBack }: { onBack?: () => void } = {}) {
             <AppText variant="label">Nos aventures</AppText>
           </PressableScale>
         ) : null}
-        <AppText variant="overline">Espace</AppText>
+        <AppText variant="overline">Bande</AppText>
         <AppText variant="title" numberOfLines={1}>
-          {space?.name ?? "Aucun espace"}
+          {space?.name ?? "Aucune bande"}
         </AppText>
       </View>
     );
@@ -74,11 +74,11 @@ export function SpaceSwitcher({ onBack }: { onBack?: () => void } = {}) {
           onPress={() => setOpen(true)}
           scaleTo={0.98}
           accessibilityRole="button"
-          accessibilityLabel={`Espace actif : ${space?.name ?? "aucun"}. Changer d'espace`}
+          accessibilityLabel={`Bande active : ${space?.name ?? "aucune"}. Changer de bande`}
           style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 6 }}
         >
           <AppText variant="h2" numberOfLines={1} style={{ flexShrink: 1 }}>
-            {space?.name ?? "Aucun espace"}
+            {space?.name ?? "Aucune bande"}
           </AppText>
           <ChevronDown size={19} color={colors.textMuted} />
         </PressableScale>
@@ -198,7 +198,7 @@ export function SpacePicker({ visible, onClose }: { visible: boolean; onClose: (
             }}
           >
             <AppText variant="h3" style={{ flex: 1 }}>
-              Tes espaces
+              Tes bandes
             </AppText>
             <IconButton icon={<X size={19} color={colors.text} />} onPress={onClose} size={38} accessibilityLabel="Fermer" />
           </View>
@@ -212,7 +212,7 @@ export function SpacePicker({ visible, onClose }: { visible: boolean; onClose: (
                   onPress={() => choose(s.id)}
                   scaleTo={0.98}
                   accessibilityRole="button"
-                  accessibilityLabel={`Ouvrir ${s.name}${active ? " (espace actif)" : ""}`}
+                  accessibilityLabel={`Ouvrir ${s.name}${active ? " (bande active)" : ""}`}
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
@@ -235,7 +235,7 @@ export function SpacePicker({ visible, onClose }: { visible: boolean; onClose: (
 
             {spaces.length === 0 ? (
               <AppText variant="bodyMuted" center style={{ paddingVertical: spacing.lg }}>
-                Tu ne fais encore partie d&apos;aucun espace.
+                Tu ne fais encore partie d&apos;aucune bande.
               </AppText>
             ) : null}
 
@@ -243,7 +243,7 @@ export function SpacePicker({ visible, onClose }: { visible: boolean; onClose: (
 
             <View style={{ gap: spacing.md, flexDirection: wide ? "row" : "column" }}>
               <Button
-                title="Créer un espace"
+                title="Créer une bande"
                 icon={<Plus size={18} color={colors.primaryFg} />}
                 onPress={() => go("/create-space")}
                 style={wide ? { flex: 1 } : undefined}

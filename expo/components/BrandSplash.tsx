@@ -7,7 +7,7 @@ import { colors, spacing } from "@/constants/theme";
 
 /**
  * Animated, cinematic launch screen rendered by JS.
- * The brand name and "G" mark are drawn from components (never a baked PNG),
+ * The Bobine reel and logotype are drawn from components (never a baked PNG),
  * so the launch identity always matches the live app.
  */
 export function BrandSplash({ done, onHidden }: { done: boolean; onHidden: () => void }) {
@@ -59,7 +59,7 @@ export function BrandSplash({ done, onHidden }: { done: boolean; onHidden: () =>
             <BrandMark size={96} />
             <Wordmark size={38} />
             <AppText variant="bodyMuted" center style={{ maxWidth: 260, marginTop: spacing.xs }}>
-              Vos souvenirs partagés, à rejouer ensemble.
+              Vos sorties méritent leur propre série.
             </AppText>
           </Animated.View>
         </View>

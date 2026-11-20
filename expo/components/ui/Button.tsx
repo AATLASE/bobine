@@ -43,7 +43,7 @@ function palette(variant: Variant): { bg: string; fg: string; border?: string } 
     case "gold":
       return { bg: colors.accent, fg: "#1A1607" };
     case "subtle":
-      return { bg: colors.primarySoft, fg: colors.primary };
+      return { bg: colors.primarySoft, fg: colors.primaryText };
   }
 }
 

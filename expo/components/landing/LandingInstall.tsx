@@ -142,21 +142,21 @@ export function InstallPopup({ install }: { install: LandingInstall }) {
     setDismissed(true);
   };
 
-  let title = "Gather, en vraie app";
+  let title = "Bobine, en vraie app";
   let text = "Sur ton écran d'accueil.";
   let action = "Télécharger";
   if (path === "in-app") {
-    title = "Ouvre Gather dans ton navigateur";
-    text = "Depuis cette appli, impossible d'installer Gather.";
+    title = "Ouvre Bobine dans ton navigateur";
+    text = "Depuis cette appli, impossible d'installer Bobine.";
     action = "Comment ?";
   } else if (!phone && path === "prompt") {
-    title = "Gather sur ton ordi";
+    title = "Bobine sur ton ordi";
     text = "Dans sa propre fenêtre, en un clic.";
     action = "Installer";
   }
 
   return (
-    <aside className="gl-popup" aria-label="Installer Gather">
+    <aside className="gl-popup" aria-label="Installer Bobine">
       <img className="gl-popup__icon" src="/icon-192.png" alt="" width={44} height={44} />
       <p className="gl-popup__copy">
         <strong>{title}</strong>
@@ -184,7 +184,7 @@ interface StepItem {
 
 const STEPS: Record<Exclude<InstallPath, "prompt">, { title: string; lede: string; steps: StepItem[] }> = {
   ios: {
-    title: "Ajoute Gather à ton écran d'accueil",
+    title: "Ajoute Bobine à ton écran d'accueil",
     lede: "Sur iPhone, Apple ne laisse pas un site s'installer tout seul. Trois gestes, dix secondes :",
     steps: [
       {
@@ -200,12 +200,12 @@ const STEPS: Record<Exclude<InstallPath, "prompt">, { title: string; lede: strin
       {
         icon: ICONS.check,
         title: <>Touche <b>Ajouter</b></>,
-        hint: "Gather apparaît avec tes autres apps.",
+        hint: "Bobine apparaît avec tes autres apps.",
       },
     ],
   },
   android: {
-    title: "Installe Gather sur ton téléphone",
+    title: "Installe Bobine sur ton téléphone",
     lede: "Ton navigateur le fait depuis son menu, en trois gestes :",
     steps: [
       {
@@ -221,12 +221,12 @@ const STEPS: Record<Exclude<InstallPath, "prompt">, { title: string; lede: strin
       {
         icon: ICONS.check,
         title: <>Confirme</>,
-        hint: "Gather apparaît avec tes autres apps.",
+        hint: "Bobine apparaît avec tes autres apps.",
       },
     ],
   },
   "in-app": {
-    title: "Ouvre Gather dans ton navigateur",
+    title: "Ouvre Bobine dans ton navigateur",
     lede: "Instagram, TikTok et compagnie ne savent pas installer d'app. Passe d'abord par Safari ou Chrome :",
     steps: [
       {

@@ -163,13 +163,13 @@ interface JoinRow {
 
 /** The toast shown after joining, which says what the person can now do. */
 export function joinMessage(result: JoinResult): string {
-  if (result.role === "owner") return "Tu fais déjà partie de cet espace.";
+  if (result.role === "owner") return "Tu fais déjà partie de cette bande.";
   if (result.role === "member") {
     return result.alreadyMember
-      ? "Tu participes à cet espace : épisodes et reviews sont à toi."
+      ? "Tu participes à cette bande : épisodes et reviews sont à toi."
       : "Bienvenue ! Tu peux créer des épisodes et écrire tes reviews.";
   }
-  return result.alreadyMember ? "Tu fais déjà partie de cet espace." : "Bienvenue ! Tu suis l'aventure en observateur.";
+  return result.alreadyMember ? "Tu fais déjà partie de cette bande." : "Bienvenue ! Tu suis l'aventure en observateur.";
 }
 
 export function useJoinSpace() {
@@ -187,7 +187,7 @@ export function useJoinSpace() {
       if (error) throw error;
 
       const row = (Array.isArray(data) ? data[0] : data) as JoinRow | undefined;
-      if (!row?.space_id) throw new Error("Code invalide. Vérifie-le auprès du propriétaire de l'espace.");
+      if (!row?.space_id) throw new Error("Code invalide. Vérifie-le auprès du propriétaire de la bande.");
 
       return { spaceId: row.space_id, alreadyMember: !!row.already_member, role: row.role ?? "observer" };
     },
@@ -234,7 +234,7 @@ export function useDeleteSpace() {
       const { data, error } = await supabase.from("spaces").delete().eq("id", spaceId).select("id");
       if (error) throw error;
       if (!data || data.length === 0) {
-        throw new Error("Le serveur a refusé la suppression. Seul le propriétaire peut supprimer l'espace.");
+        throw new Error("Le serveur a refusé la suppression. Seul le propriétaire peut supprimer la bande.");
       }
 
       await removeStoredFiles([
