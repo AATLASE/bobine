@@ -79,7 +79,7 @@ function ReviewWaitingBanner({ title, others, onPress }: { title: string; others
             </AppText>
           ) : null}
         </View>
-        <AppText style={{ color: colors.primary, fontWeight: "700", fontSize: 14 }}>Écrire ›</AppText>
+        <AppText style={{ color: colors.primaryText, fontWeight: "700", fontSize: 14 }}>Écrire ›</AppText>
       </PressableScale>
     </FadeIn>
   );
@@ -143,7 +143,7 @@ export default function MomentsScreen() {
         <SpaceSwitcher onBack={backToList} />
         <NoSpaceState
           icon={<Sparkles size={30} color={colors.primary} />}
-          title="Aucun espace pour l'instant"
+          title="Aucune bande pour l'instant"
           subtitle="Crée ta première aventure partagée, ou rejoins celle d'un proche avec un code d'invitation."
         />
       </Screen>
@@ -204,7 +204,7 @@ export default function MomentsScreen() {
                 icon={<Settings size={17} color={colors.text} />}
                 onPress={() => router.push({ pathname: "/space-settings/[spaceId]", params: { spaceId } })}
                 size={36}
-                accessibilityLabel={owner ? "Réglages de l'espace" : "Paramètres de l'aventure"}
+                accessibilityLabel={owner ? "Réglages de la bande" : "Paramètres de l'aventure"}
               />
             </View>
 

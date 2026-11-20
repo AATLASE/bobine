@@ -16,7 +16,7 @@ interface BadgeProps {
 function toneColors(tone: Tone): { bg: string; fg: string; border?: string } {
   switch (tone) {
     case "primary":
-      return { bg: colors.primarySoft, fg: colors.primary };
+      return { bg: colors.primarySoft, fg: colors.primaryText };
     case "gold":
       return { bg: colors.accentSoft, fg: colors.accent };
     case "success":

@@ -139,7 +139,7 @@ export function InstallBanner() {
         <View style={styles.row}>
           <Image source={{ uri: "/icon-192.png" }} style={styles.icon} contentFit="cover" />
           <View style={{ flex: 1, gap: 1 }}>
-            <AppText style={[styles.title, { color: colors.text }]}>Installe Gather</AppText>
+            <AppText style={[styles.title, { color: colors.text }]}>Installe Bobine</AppText>
             <AppText style={[styles.hint, { color: colors.textMuted }]} numberOfLines={2}>
               {path === "in-app"
                 ? "Ouvre ce lien dans ton navigateur pour avoir l'app."
@@ -171,7 +171,7 @@ export function InstallBanner() {
             <Step
               icon={<CircleCheck size={18} color={colors.primary} />}
               title="Valide avec « Ajouter »"
-              hint="Gather apparaît alors avec tes autres apps."
+              hint="Bobine apparaît alors avec tes autres apps."
             />
           </View>
         ) : null}
@@ -191,7 +191,7 @@ export function InstallBanner() {
             <Step
               icon={<CircleCheck size={18} color={colors.primary} />}
               title="Confirme"
-              hint="Gather apparaît alors avec tes autres apps."
+              hint="Bobine apparaît alors avec tes autres apps."
             />
           </View>
         ) : null}

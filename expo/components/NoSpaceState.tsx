@@ -18,7 +18,7 @@ export function NoSpaceState({ icon, title, subtitle }: { icon: React.ReactNode;
     <>
       <EmptyState icon={icon} title={title} subtitle={subtitle} />
       <View style={{ gap: spacing.md, marginTop: -spacing.xl }}>
-        <Button title="Créer un espace" icon={<Plus size={18} color={colors.primaryFg} />} onPress={() => router.push("/create-space")} />
+        <Button title="Créer une bande" icon={<Plus size={18} color={colors.primaryFg} />} onPress={() => router.push("/create-space")} />
         <Button title="J'ai un code" variant="secondary" icon={<Ticket size={18} color={colors.text} />} onPress={() => router.push("/join")} />
       </View>
     </>

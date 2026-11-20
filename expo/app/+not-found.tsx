@@ -15,7 +15,7 @@ export default function NotFoundScreen() {
           <AppText variant="title" center>Page introuvable</AppText>
           <AppText variant="bodyMuted" center>Cette scène n&apos;existe pas (encore).</AppText>
           <Link href="/" style={{ marginTop: spacing.md }}>
-            <AppText style={{ color: colors.primary, fontWeight: "700", fontSize: 16 }}>Retour à l&apos;accueil</AppText>
+            <AppText style={{ color: colors.primaryText, fontWeight: "700", fontSize: 16 }}>Retour à l&apos;accueil</AppText>
           </Link>
         </View>
       </Screen>

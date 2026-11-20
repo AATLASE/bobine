@@ -55,7 +55,7 @@ export default function SignupScreen() {
       if (needsConfirmation) {
         setSent(true);
       } else {
-        toast.success("Bienvenue dans Gather !");
+        toast.success("Bienvenue dans Bobine !");
       }
     } catch (error) {
       toast.error(friendlyError(error));
@@ -104,7 +104,7 @@ export default function SignupScreen() {
           <BrandMark size={64} />
           <Wordmark size={26} />
           <AppText variant="bodyMuted" center>
-            {inviteCode ? "Crée ton compte, et tu rejoins l'espace dans la foulée." : "Crée ton compte et lance ta première saison."}
+            {inviteCode ? "Crée ton compte, et tu rejoins la bande dans la foulée." : "Crée ton compte et lance ta première saison."}
           </AppText>
         </View>
       </FadeIn>
@@ -178,7 +178,7 @@ export default function SignupScreen() {
         <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: spacing.xl }}>
           <AppText variant="bodyMuted">Déjà un compte ?</AppText>
           <TouchableOpacity onPress={() => router.push("/login")}>
-            <AppText style={{ color: colors.primary, fontWeight: "700" }}>Se connecter</AppText>
+            <AppText style={{ color: colors.primaryText, fontWeight: "700" }}>Se connecter</AppText>
           </TouchableOpacity>
         </View>
       </FadeIn>

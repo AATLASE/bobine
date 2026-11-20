@@ -33,7 +33,7 @@ import { Loader } from "@/components/ui/Feedback";
 import { noWebOutline, useAutoGrow } from "@/components/ui/Input";
 import { FadeIn, Pulse, PressableScale } from "@/components/ui/motion";
 import { AppText } from "@/components/ui/Text";
-import { colors, radius, spacing } from "@/constants/theme";
+import { colors, fonts, radius, spacing } from "@/constants/theme";
 import { friendlyError } from "@/lib/errors";
 import { formatDate, formatDuration, normalizeTags } from "@/lib/format";
 import { pickCoverImage, pickFromLibrary, type PickedAsset } from "@/lib/media";
@@ -460,7 +460,7 @@ export default function EpisodeDetailScreen() {
           toggleLike.mutate(likes?.liked ?? false, { onError: (e) => toast.error(friendlyError(e)) });
         }} style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
         <Heart size={22} color={likes?.liked ? colors.primary : colors.textMuted} fill={likes?.liked ? colors.primary : "transparent"} />
-        <AppText style={{ fontWeight: "700", color: likes?.liked ? colors.primary : colors.textMuted }}>{likes?.count ?? 0}</AppText>
+        <AppText style={{ fontWeight: "700", color: likes?.liked ? colors.primaryText : colors.textMuted }}>{likes?.count ?? 0}</AppText>
       </PressableScale>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
         <MessageCircle size={21} color={colors.textMuted} />
@@ -689,7 +689,7 @@ export default function EpisodeDetailScreen() {
                     onPress={() =>
                       confirmAction(
                         "Révéler cet épisode ?",
-                        `Les reviews déjà écrites seront visibles par tout l'espace, même s'il en manque ${pendingCount}.`,
+                        `Les reviews déjà écrites seront visibles par toute la bande, même s'il en manque ${pendingCount}.`,
                         "Révéler",
                         () =>
                           revealNow.mutate(undefined, {
@@ -828,7 +828,7 @@ export default function EpisodeDetailScreen() {
                   returnKeyType="send"
                   multiline
                   textAlignVertical="top"
-                  style={[{ flex: 1, color: colors.text, fontSize: 15, backgroundColor: colors.bgElevated, borderRadius: radius.xl, borderWidth: 1.5, borderColor: replyTo ? colors.primary : draftFocused ? colors.focus : colors.border, paddingHorizontal: spacing.lg, paddingTop: 12, paddingBottom: 12, minHeight: draftGrow.minHeight, height: draftGrow.height }, noWebOutline]}
+                  style={[{ flex: 1, color: colors.text, fontFamily: fonts.medium, fontSize: 15, backgroundColor: colors.bgElevated, borderRadius: radius.xl, borderWidth: 1.5, borderColor: replyTo ? colors.primary : draftFocused ? colors.focus : colors.border, paddingHorizontal: spacing.lg, paddingTop: 12, paddingBottom: 12, minHeight: draftGrow.minHeight, height: draftGrow.height }, noWebOutline]}
                 />
                 <IconButton icon={<Send size={18} color={colors.primaryFg} />} variant="primary" onPress={onSendComment} accessibilityLabel="Envoyer le commentaire" />
               </View>

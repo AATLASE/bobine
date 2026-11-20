@@ -80,8 +80,8 @@ export default function RecapScreen() {
         <SpaceSwitcher />
         <NoSpaceState
           icon={<Sparkles size={30} color={colors.primary} />}
-          title="Aucun espace"
-          subtitle="Le bilan de saison apparaîtra ici une fois que tu feras partie d'un espace."
+          title="Aucune bande"
+          subtitle="Le bilan de saison apparaîtra ici une fois que tu feras partie d'une bande."
         />
       </Screen>
     );
@@ -108,7 +108,7 @@ export default function RecapScreen() {
   };
 
   const shareRecap = async () => {
-    await Share.share({ message: `On vient de débloquer le bilan de « ${space.name} » sur Gather 🎬✨` });
+    await Share.share({ message: `On vient de débloquer le bilan de « ${space.name} » sur Bobine 🎬✨` });
   };
 
   const summary = extractSummary(synthese);
@@ -211,7 +211,7 @@ export default function RecapScreen() {
                 <Film size={22} color={colors.textMuted} />
                 <AppText variant="overline">Bientôt disponible</AppText>
                 <AppText variant="bodyMuted" center>
-                  La synthèse écrite et la vidéo souvenir de votre saison arrivent dans une prochaine version de Gather.
+                  La synthèse écrite et la vidéo souvenir de votre saison arrivent dans une prochaine version de Bobine.
                 </AppText>
               </Card>
             ) : null}

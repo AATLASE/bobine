@@ -13,6 +13,9 @@
     "gen:types": "cd .. && npx supabase gen types typescript --local --schema public > expo/lib/database.types.ts"
   },
   "dependencies": {
+    "@expo-google-fonts/bricolage-grotesque": "0.4.1",
+    "@expo-google-fonts/figtree": "0.4.1",
+    "@expo-google-fonts/gochi-hand": "0.4.2",
     "@expo/vector-icons": "^15.0.3",
     "@nkzw/create-context-hook": "^1.1.0",
     "@react-native-async-storage/async-storage": "2.2.0",

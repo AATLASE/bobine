@@ -304,7 +304,7 @@ export default function ProfileScreen() {
     confirmAction(
       "Supprimer ton compte ?",
       [
-        "C'est définitif. Ton e-mail, ton nom, ta photo et tes notifications sont effacés, et tu quittes tous tes espaces.",
+        "C'est définitif. Ton e-mail, ton nom, ta photo et tes notifications sont effacés, et tu quittes toutes tes bandes.",
         "Tes reviews, commentaires et photos restent dans les épisodes du groupe, signés « Ancien membre ».",
         ...spaceLines,
       ].join("\n\n"),
@@ -359,13 +359,13 @@ export default function ProfileScreen() {
       </FadeIn>
 
       <View style={{ marginTop: spacing.xxl }}>
-        <SectionHeader title="Espace" subtitle={space?.name ?? "Aucun espace actif"} />
+        <SectionHeader title="Bande" subtitle={space?.name ?? "Aucune bande active"} />
         <Card style={{ gap: spacing.lg }}>
           <Row
             icon={<Users size={18} color={colors.text} />}
             title="Membres"
-            subtitle={space ? "Voir qui partage l'aventure, gérer les accès" : "Rejoins un espace pour voir ses membres"}
-            accessibilityLabel="Ouvrir les membres de l'espace"
+            subtitle={space ? "Voir qui partage l'aventure, gérer les accès" : "Rejoins une bande pour voir ses membres"}
+            accessibilityLabel="Ouvrir les membres de la bande"
             onPress={() =>
               space
                 ? router.push({ pathname: "/space-members/[spaceId]", params: { spaceId: space.id } })
@@ -376,7 +376,7 @@ export default function ProfileScreen() {
           <Row
             icon={<GraduationCap size={18} color={colors.text} />}
             title="Revoir le didacticiel"
-            subtitle="Le petit tour de bienvenue de Gather"
+            subtitle="Le petit tour de bienvenue de Bobine"
             accessibilityLabel="Revoir le didacticiel"
             onPress={() => router.push("/onboarding")}
           />
@@ -400,8 +400,8 @@ export default function ProfileScreen() {
               <Info size={18} color={colors.text} />
             </View>
             <View style={{ flex: 1 }}>
-              <AppText style={{ fontWeight: "600", fontSize: 15, color: colors.text }}>Gather</AppText>
-              <AppText variant="caption">{spaces.length} espace{spaces.length > 1 ? "s" : ""}</AppText>
+              <AppText style={{ fontWeight: "600", fontSize: 15, color: colors.text }}>Bobine</AppText>
+              <AppText variant="caption">{spaces.length} bande{spaces.length > 1 ? "s" : ""}</AppText>
             </View>
             <AppText variant="caption">v1.0.0</AppText>
           </View>

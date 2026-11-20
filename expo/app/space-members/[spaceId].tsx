@@ -43,7 +43,7 @@ export default function MembersScreen() {
   };
 
   const confirmRemove = (memberUserId: string, name: string) => {
-    confirmAction("Retirer ce membre ?", `${name} n'aura plus accès à cet espace.`, "Retirer", () =>
+    confirmAction("Retirer ce membre ?", `${name} n'aura plus accès à cette bande.`, "Retirer", () =>
       removeMember.mutate({ spaceId: id, userId: memberUserId }, { onError: (e) => toast.error(friendlyError(e)) })
     );
   };
@@ -63,7 +63,7 @@ export default function MembersScreen() {
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
               <AppText variant="h3" numberOfLines={1}>{member.profile?.name ?? "Membre"}</AppText>
-              {isMe ? <AppText variant="caption" style={{ color: colors.primary }}>· toi</AppText> : null}
+              {isMe ? <AppText variant="caption" style={{ color: colors.primaryText }}>· toi</AppText> : null}
             </View>
             <View style={{ marginTop: 4, flexDirection: "row" }}>
               <RoleBadge role={effectiveRole(member)} />
@@ -74,7 +74,7 @@ export default function MembersScreen() {
               onPress={() => confirmRemove(member.user_id, member.profile?.name ?? "Ce membre")}
               hitSlop={12}
               accessibilityRole="button"
-              accessibilityLabel={`Retirer ${member.profile?.name ?? "ce membre"} de l'espace`}
+              accessibilityLabel={`Retirer ${member.profile?.name ?? "ce membre"} de la bande`}
             >
               <Trash2 size={17} color={colors.textFaint} />
             </TouchableOpacity>
@@ -107,7 +107,7 @@ export default function MembersScreen() {
                 <AppText variant="caption">
                   {participating
                     ? "Crée des épisodes et écrit ses impressions"
-                    : `Pour l'instant, ${member.profile?.name ?? "cette personne"} voit l'espace et commente les épisodes révélés`}
+                    : `Pour l'instant, ${member.profile?.name ?? "cette personne"} voit la bande et commente les épisodes révélés`}
                 </AppText>
               </View>
               <Switch
@@ -146,8 +146,8 @@ export default function MembersScreen() {
           <View style={{ marginBottom: spacing.xxl }}>
             <SectionHeader title="Inviter" subtitle="Deux liens, selon ce que tu veux que la personne puisse faire" />
             <View style={{ gap: spacing.md }}>
-              <InviteCodeCard spaceId={id} spaceName={space?.name ?? "notre espace"} role="member" />
-              <InviteCodeCard spaceId={id} spaceName={space?.name ?? "notre espace"} role="observer" />
+              <InviteCodeCard spaceId={id} spaceName={space?.name ?? "notre bande"} role="member" />
+              <InviteCodeCard spaceId={id} spaceName={space?.name ?? "notre bande"} role="observer" />
             </View>
           </View>
         </FadeIn>
@@ -166,7 +166,7 @@ export default function MembersScreen() {
             <View style={{ marginBottom: spacing.xxl }}>
               <SectionHeader
                 title="En attente de ton feu vert"
-                subtitle={`${pending.length} personne${pending.length > 1 ? "s" : ""} ${pending.length > 1 ? "ont" : "a"} rejoint l'espace mais ne peu${pending.length > 1 ? "vent" : "t"} pas encore participer`}
+                subtitle={`${pending.length} personne${pending.length > 1 ? "s" : ""} ${pending.length > 1 ? "ont" : "a"} rejoint la bande mais ne peu${pending.length > 1 ? "vent" : "t"} pas encore participer`}
               />
               <View style={{ gap: spacing.md }}>
                 {pending.map((member, i) => (

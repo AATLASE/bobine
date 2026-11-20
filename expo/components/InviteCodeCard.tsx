@@ -29,7 +29,7 @@ export const INVITE_COPY: Record<InviteRole, { title: string; explanation: strin
   },
 };
 
-/** What Gather is, in one sentence, for someone who has never heard of it. */
+/** What Bobine is, in one sentence, for someone who has never heard of it. */
 export const INVITE_PROMISE =
   "on y garde nos sorties, chacun note la soirée en secret et on découvre les avis de tous en même temps.";
 
@@ -40,7 +40,7 @@ export const INVITE_PROMISE =
  */
 export function inviteMessage({ inviterName, spaceName, role, link, code }: { inviterName?: string | null; spaceName: string; role: InviteRole; link: string; code: string }): string {
   const name = inviterName?.trim();
-  const opening = name ? `${name} t'invite dans « ${spaceName} » sur Gather` : `Tu es invité(e) dans « ${spaceName} » sur Gather`;
+  const opening = name ? `${name} t'invite dans « ${spaceName} » sur Bobine` : `Tu es invité(e) dans « ${spaceName} » sur Bobine`;
   return `${opening} : ${INVITE_PROMISE}\n${INVITE_COPY[role].shareLine}\n${link}\n(ou code : ${code})`;
 }
 

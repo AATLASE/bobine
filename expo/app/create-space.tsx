@@ -61,7 +61,7 @@ export default function CreateSpaceScreen() {
     // Errors belong next to the field that caused them, not in a toast that may
     // pop far from where the user is looking on a long form.
     if (!name.trim()) {
-      setNameError("Donne un nom à ton espace.");
+      setNameError("Donne un nom à ta bande.");
       return;
     }
     if (end.getTime() <= start.getTime()) {
@@ -89,7 +89,7 @@ export default function CreateSpaceScreen() {
           space.cover_url = updated.cover_url;
         } catch (coverError) {
           console.log("[create-space] cover upload failed:", coverError);
-          toast.info("Espace créé, mais la couverture n'a pas pu être envoyée. Réessaie depuis les paramètres.");
+          toast.info("Bande créée, mais la couverture n'a pas pu être envoyée. Réessaie depuis les paramètres.");
         }
       }
 
@@ -128,7 +128,7 @@ export default function CreateSpaceScreen() {
         </FadeIn>
 
         <Button
-          title="Ouvrir l'espace"
+          title="Ouvrir la bande"
           size="lg"
           onPress={() => {
             select(created.space.id);
@@ -144,7 +144,7 @@ export default function CreateSpaceScreen() {
     <Screen scroll dialog contentStyle={{ paddingHorizontal: spacing.lg }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: spacing.sm, marginBottom: spacing.lg }}>
         <View style={{ flex: 1, gap: 2 }}>
-          <AppText variant="title">Nouvel espace</AppText>
+          <AppText variant="title">Nouvelle bande</AppText>
           <AppText variant="caption">Le groupe qui partagera ses moments</AppText>
         </View>
         <IconButton icon={<X size={20} color={colors.text} />} onPress={() => router.back()} size={40} accessibilityLabel="Fermer" />
@@ -185,7 +185,7 @@ export default function CreateSpaceScreen() {
 
       <FadeIn delay={80}>
         <View style={{ gap: spacing.lg }}>
-          <Field label="Nom de l'espace" error={nameError}>
+          <Field label="Nom de la bande" error={nameError}>
             <Input
               placeholder="Samuel & Mathilde — Saison 1"
               value={name}
@@ -236,9 +236,9 @@ export default function CreateSpaceScreen() {
             ) : null}
           </View>
 
-          <Badge label="Tu seras le propriétaire de cet espace" tone="gold" style={{ marginTop: spacing.xs }} />
+          <Badge label="Tu seras le propriétaire de cette bande" tone="gold" style={{ marginTop: spacing.xs }} />
 
-          <Button title="Créer l'espace" size="lg" onPress={onCreate} loading={loading} icon={<Check size={18} color={colors.primaryFg} />} style={{ marginTop: spacing.sm }} />
+          <Button title="Créer la bande" size="lg" onPress={onCreate} loading={loading} icon={<Check size={18} color={colors.primaryFg} />} style={{ marginTop: spacing.sm }} />
         </View>
       </FadeIn>
 

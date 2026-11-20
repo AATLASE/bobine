@@ -87,8 +87,8 @@ export default function IdeasScreen() {
         <SpaceSwitcher />
         <NoSpaceState
           icon={<Lightbulb size={30} color={colors.primary} />}
-          title="Aucun espace"
-          subtitle="Rejoins ou crée un espace pour proposer des idées de sorties."
+          title="Aucune bande"
+          subtitle="Rejoins ou crée une bande pour proposer des idées de sorties."
         />
       </Screen>
     );

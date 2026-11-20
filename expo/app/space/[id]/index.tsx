@@ -25,7 +25,7 @@ export default function SpaceRedirect() {
   if (!adopted) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
-        <Loader label="Ouverture de l'espace…" />
+        <Loader label="Ouverture de la bande…" />
       </View>
     );
   }

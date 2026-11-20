@@ -28,15 +28,15 @@ const SLIDES: Slide[] = [
   {
     key: "welcome",
     overline: "Bienvenue",
-    title: "Bienvenue sur Gather",
-    body: "Vos moments partagés deviennent une série à revivre. Trois mots à retenir : un espace (votre groupe), un épisode (un moment vécu), une saison (la période que vous traversez ensemble).",
+    title: "Bienvenue sur Bobine",
+    body: "Vos moments partagés deviennent une série à revivre. Trois mots à retenir : une bande (votre groupe), un épisode (un moment vécu), une saison (la période que vous traversez ensemble).",
     icon: "brand",
   },
   {
     key: "space",
     overline: "Étape 1 sur 4",
-    title: "Crée ton espace",
-    body: "Un espace, c'est tout simplement ton groupe : ton couple, ta bande d'amis ou ta famille. Il a sa propre couverture, comme une affiche de série.",
+    title: "Crée ta bande",
+    body: "Une bande, c'est tout simplement ton groupe : ton couple, tes amis ou ta famille. Elle a sa propre couverture, comme une affiche de série.",
     icon: "space",
   },
   {

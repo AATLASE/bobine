@@ -66,7 +66,7 @@ export function SideNav({ state, descriptors, navigation, compact }: BottomTabBa
       <Pressable
         onPress={() => setPicker(true)}
         accessibilityRole="button"
-        accessibilityLabel={`Espace actif : ${space?.name ?? "aucun"}. Changer d'espace`}
+        accessibilityLabel={`Bande active : ${space?.name ?? "aucune"}. Changer de bande`}
         style={({ pressed, hovered }: WebPressState) => ({
           flexDirection: "row",
           alignItems: "center",
@@ -83,9 +83,9 @@ export function SideNav({ state, descriptors, navigation, compact }: BottomTabBa
         {compact ? null : (
           <>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <AppText variant="caption">Espace</AppText>
+              <AppText variant="caption">Bande</AppText>
               <AppText numberOfLines={1} style={{ fontSize: 14.5, fontWeight: "700", color: colors.text }}>
-                {space?.name ?? "Aucun espace"}
+                {space?.name ?? "Aucune bande"}
               </AppText>
             </View>
             <ChevronsUpDown size={16} color={colors.textMuted} />
@@ -99,7 +99,7 @@ export function SideNav({ state, descriptors, navigation, compact }: BottomTabBa
           const { options } = descriptors[route.key];
           const label = typeof options.title === "string" ? options.title : route.name;
           const active = state.index === index;
-          const color = active ? colors.primary : colors.textMuted;
+          const color = active ? colors.primaryText : colors.textMuted;
 
           const onPress = () => {
             const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });

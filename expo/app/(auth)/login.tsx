@@ -124,7 +124,7 @@ export default function LoginScreen() {
         <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, marginTop: spacing.xl }}>
           <AppText variant="bodyMuted">Pas encore de compte ?</AppText>
           <TouchableOpacity onPress={() => router.push("/signup")}>
-            <AppText style={{ color: colors.primary, fontWeight: "700" }}>Créer un compte</AppText>
+            <AppText style={{ color: colors.primaryText, fontWeight: "700" }}>Créer un compte</AppText>
           </TouchableOpacity>
         </View>
       </FadeIn>

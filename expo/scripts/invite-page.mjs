@@ -11,10 +11,10 @@ const dist = path.resolve(process.argv[2] ?? "dist");
 const shell = fs.readFileSync(path.join(dist, "index.html"), "utf8");
 
 const swaps = [
-  [/(<meta property="og:title" content=")[^"]*(")/, "$1Rejoins-moi sur Gather$2"],
+  [/(<meta property="og:title" content=")[^"]*(")/, "$1Rejoins-moi sur Bobine$2"],
   [
     /(<meta property="og:description" content=")[^"]*(")/,
-    "$1Tu es invité·e dans notre espace : on y garde nos sorties, chacun écrit sa review en secret, et tout se révèle d'un coup.$2",
+    "$1Tu es invité·e dans notre bande : on y garde nos sorties, chacun écrit sa review en secret, et tout se révèle d'un coup.$2",
   ],
 ];
 

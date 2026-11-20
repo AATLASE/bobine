@@ -10,7 +10,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { colors, radius, spacing } from "@/constants/theme";
+import { colors, fonts, radius, spacing } from "@/constants/theme";
 import { AppText } from "./Text";
 
 interface FieldProps {
@@ -160,8 +160,8 @@ export function Input({
           {
             flex: 1,
             color: colors.text,
+            fontFamily: fonts.medium,
             fontSize: 15.5,
-            fontWeight: "500",
             paddingVertical: multiline ? 0 : 14,
             textAlignVertical: multiline ? "top" : "center",
             minHeight: grow.minHeight,

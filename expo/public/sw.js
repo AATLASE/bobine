@@ -1,9 +1,9 @@
-/* Gather PWA service worker.
+/* Bobine PWA service worker.
  * Gives the app installability ("Add to Home Screen") and an offline app shell.
  * We deliberately never cache cross-origin requests (Supabase auth/data/storage)
  * so the network stays the single source of truth for user data. */
 
-const CACHE = "gather-shell-v2";
+const CACHE = "bobine-shell-v3";
 const SHELL = "/";
 
 self.addEventListener("install", (event) => {
@@ -37,10 +37,10 @@ self.addEventListener("push", (event) => {
   try {
     payload = event.data ? event.data.json() : {};
   } catch {
-    payload = { title: "Gather", body: event.data ? event.data.text() : "" };
+    payload = { title: "Bobine", body: event.data ? event.data.text() : "" };
   }
 
-  const title = payload.title || "Gather";
+  const title = payload.title || "Bobine";
   const url = payload.url || "/";
   const options = {
     body: payload.body || "",

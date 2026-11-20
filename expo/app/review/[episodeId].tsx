@@ -258,7 +258,7 @@ export default function ReviewScreen() {
           {/* Media is the one part of this screen that is not private: it joins
               the episode's gallery, visible to the whole space right away. The
               hint says so, since everything above promises the opposite. */}
-          <Field label="Tes photos & vidéos" hint="Elles rejoignent la galerie de l'épisode — visibles par tout l'espace, contrairement à ta review.">
+          <Field label="Tes photos & vidéos" hint="Elles rejoignent la galerie de l'épisode — visibles par toute la bande, contrairement à ta review.">
             <View style={{ flexDirection: "row", gap: spacing.md }}>
               <Button title="Galerie" variant="secondary" icon={<Images size={18} color={colors.text} />} onPress={addFromLibrary} style={{ flex: 1 }} />
               <Button title="Caméra" variant="secondary" icon={<Camera size={18} color={colors.text} />} onPress={addFromCamera} style={{ flex: 1 }} />

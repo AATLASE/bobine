@@ -78,8 +78,8 @@ export function usePushSwitch() {
         } else if (result === "denied") {
           toast.info(
             Platform.OS === "web"
-              ? "Les notifications sont bloquées pour Gather. Débloque-les dans les réglages du téléphone (iPhone : Réglages › Notifications › Gather) ou du navigateur (icône à gauche de l'adresse › Notifications)."
-              : "Les notifications sont bloquées. Débloque-les dans Réglages du téléphone › Notifications › Gather.",
+              ? "Les notifications sont bloquées pour Bobine. Débloque-les dans les réglages du téléphone (iPhone : Réglages › Notifications › Bobine) ou du navigateur (icône à gauche de l'adresse › Notifications)."
+              : "Les notifications sont bloquées. Débloque-les dans Réglages du téléphone › Notifications › Bobine.",
           );
         } else {
           toast.info("Autorise les notifications quand ton téléphone te le demande.");
@@ -103,7 +103,7 @@ export function usePushSwitch() {
     try {
       const result = await sendTestPush(userId);
       if (result.kind === "sent") {
-        toast.success("Notification envoyée. Si rien ne s'affiche, regarde les réglages de notifications du téléphone pour Gather.");
+        toast.success("Notification envoyée. Si rien ne s'affiche, regarde les réglages de notifications du téléphone pour Bobine.");
       } else if (result.kind === "no_device") {
         toast.error("Aucun appareil enregistré pour ton compte. Désactive puis réactive les notifications ici.");
       } else if (result.kind === "failed") {

@@ -151,7 +151,7 @@ async function sendExpoPush(sub: Subscription, row: NotificationRow): Promise<Ou
     headers: { "content-type": "application/json", accept: "application/json" },
     body: JSON.stringify({
       to: sub.endpoint,
-      title: row.title ?? "Gather",
+      title: row.title ?? "Bobine",
       body: row.body ?? "",
       sound: "default",
       // Normal priority waits for the phone to wake up on Android.
@@ -299,7 +299,7 @@ Deno.serve(async (req) => {
   }
 
   const webPayload = JSON.stringify({
-    title: row.title ?? "Gather",
+    title: row.title ?? "Bobine",
     body: row.body ?? "",
     url: row.url ?? "/",
     tag: row.url ?? undefined,
