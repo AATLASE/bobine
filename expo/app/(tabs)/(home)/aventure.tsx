@@ -198,14 +198,14 @@ export default function MomentsScreen() {
                   </AppText>
                 ) : null}
               </View>
-              {owner ? (
-                <IconButton
-                  icon={<Settings size={17} color={colors.text} />}
-                  onPress={() => router.push({ pathname: "/space-settings/[spaceId]", params: { spaceId } })}
-                  size={36}
-                  accessibilityLabel="Réglages de l'espace"
-                />
-              ) : null}
+              {/* Everyone gets the cog: owners edit the space there, and
+                  anybody can leave it. */}
+              <IconButton
+                icon={<Settings size={17} color={colors.text} />}
+                onPress={() => router.push({ pathname: "/space-settings/[spaceId]", params: { spaceId } })}
+                size={36}
+                accessibilityLabel={owner ? "Réglages de l'espace" : "Paramètres de l'aventure"}
+              />
             </View>
 
             <View style={{ height: 4, backgroundColor: colors.surface, borderRadius: radius.pill, overflow: "hidden" }}>

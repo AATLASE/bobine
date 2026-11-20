@@ -4,6 +4,7 @@ import { Camera, Film, Trash2, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { CoverAdjustModal } from "@/components/CoverAdjustModal";
+import { LeaveSpaceCard } from "@/components/LeaveSpaceCard";
 import { Button, IconButton } from "@/components/ui/Button";
 import { Card, Screen, SectionHeader } from "@/components/ui/Card";
 import { DateField } from "@/components/ui/DateField";
@@ -65,13 +66,14 @@ export default function SpaceSettingsScreen() {
   if (!isOwner(space.membership)) {
     return (
       <Screen scroll dialog contentStyle={{ paddingHorizontal: spacing.lg }}>
-        <View style={{ alignItems: "flex-end", paddingTop: spacing.sm }}>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: spacing.sm, marginBottom: spacing.lg }}>
+          <AppText variant="title">Paramètres</AppText>
           <IconButton icon={<X size={20} color={colors.text} />} onPress={() => router.back()} size={40} accessibilityLabel="Fermer" />
         </View>
-        <View style={{ alignItems: "center", marginTop: spacing.xxxl }}>
-          <AppText variant="h2">Accès réservé</AppText>
-          <AppText variant="bodyMuted" center style={{ marginTop: spacing.sm }}>Seul le propriétaire peut modifier cet espace.</AppText>
-        </View>
+        <AppText variant="bodyMuted" style={{ marginBottom: spacing.xxl }}>
+          Seul le propriétaire peut modifier le nom, la couverture et la saison de « {space.name} ».
+        </AppText>
+        {space.membership ? <LeaveSpaceCard spaceId={spaceId} spaceName={space.name} /> : null}
       </Screen>
     );
   }
@@ -177,6 +179,10 @@ export default function SpaceSettingsScreen() {
           <Button title="Enregistrer" size="lg" onPress={onSave} loading={saving} />
         </View>
       </FadeIn>
+
+      <View style={{ marginTop: spacing.xxxl }}>
+        <LeaveSpaceCard spaceId={spaceId} spaceName={space.name} />
+      </View>
 
       <View style={{ marginTop: spacing.xxxl }}>
         <SectionHeader title="Zone de danger" />

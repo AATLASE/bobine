@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft, Trash2 } from "lucide-react-native";
 import { RefreshControl, Switch, TouchableOpacity, View } from "react-native";
 import { InviteCodeCard } from "@/components/InviteCodeCard";
+import { LeaveSpaceCard } from "@/components/LeaveSpaceCard";
 import { Avatar } from "@/components/ui/Avatar";
 import { RoleBadge } from "@/components/ui/Badge";
 import { IconButton } from "@/components/ui/Button";
@@ -188,6 +189,12 @@ export default function MembersScreen() {
               </FadeIn>
             ))}
           </View>
+
+          {space?.membership ? (
+            <View style={{ marginTop: spacing.xxxl }}>
+              <LeaveSpaceCard spaceId={id} spaceName={space.name} />
+            </View>
+          ) : null}
         </>
       )}
     </Screen>

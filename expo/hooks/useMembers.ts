@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ensureSpaceInviteCode, regenerateSpaceInviteCode } from "@/lib/invites";
 import { qk } from "@/lib/keys";
+import { removeStoredFiles } from "@/lib/media";
 import { getProfilesMap } from "@/lib/profiles";
 import { supabase } from "@/lib/supabase";
 import type { InviteCode, InviteRole, MemberRole, SpaceMember } from "@/lib/types";
@@ -60,6 +61,47 @@ export function useRemoveMember() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: qk.members(variables.spaceId) });
+    },
+  });
+}
+
+/** What leaving a space does (see migration 20261120100000_leave_space). */
+export interface LeaveSpacePlan {
+  /** 'leave': just go. 'transfer': ownership passes to heir_name. 'delete': alone, the space goes too. */
+  action: "leave" | "transfer" | "delete";
+  heir_name: string | null;
+}
+
+/** Asked right before the confirmation, so it describes the space as it is now. */
+export async function fetchLeaveSpacePlan(spaceId: string): Promise<LeaveSpacePlan> {
+  const { data, error } = await supabase.rpc("leave_space_preview", { p_space_id: spaceId });
+  if (error) throw error;
+  if (!data) throw new Error("Tu ne fais déjà plus partie de cette aventure.");
+  return data as LeaveSpacePlan;
+}
+
+/**
+ * The signed-in person leaves a space, whatever their role. The server hands
+ * ownership over or deletes a space left empty, and notifies the owners and
+ * participants. Files of a deleted space come back to be removed here, with
+ * the token still in hand (Storage refuses deletes from SQL).
+ */
+export function useLeaveSpace() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (spaceId: string): Promise<LeaveSpacePlan> => {
+      const { data, error } = await supabase.rpc("leave_space", { p_space_id: spaceId });
+      if (error) throw error;
+      const result = (data ?? {}) as LeaveSpacePlan & { files?: string[] };
+      await removeStoredFiles(result.files ?? []);
+      return { action: result.action, heir_name: result.heir_name ?? null };
+    },
+    onSuccess: (_data, spaceId) => {
+      queryClient.invalidateQueries({ queryKey: qk.spaces });
+      queryClient.removeQueries({ queryKey: qk.space(spaceId) });
+      queryClient.removeQueries({ queryKey: qk.members(spaceId) });
+      queryClient.removeQueries({ queryKey: qk.episodes(spaceId) });
+      queryClient.removeQueries({ queryKey: ["membership", spaceId] });
     },
   });
 }
