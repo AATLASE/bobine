@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { AppState, Platform } from "react-native";
 
 /**
- * Connects to the existing Supabase backend (project created under the name "Gather").
+ * Connects to the existing Supabase backend.
  * Credentials come from public env vars (EXPO_PUBLIC_*) so nothing is hardcoded
  * in source. The anon key is a public client key by design — it ships inside the
  * app and is guarded server-side by Row Level Security, not by being kept secret.

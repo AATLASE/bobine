@@ -50,7 +50,7 @@ Le `<ton-ref>` est dans l'URL du tableau de bord :
 `https://supabase.com/dashboard/project/`**`<ton-ref>`**.
 
 ```powershell
-cd d:\Projets\rork-nouschill\rork-nous---chill
+cd d:\Projets\bobine\bobine
 npx supabase login
 npx supabase link --project-ref <ton-ref>
 npx supabase secrets set VAPID_PUBLIC_KEY="<clé publique>" VAPID_PRIVATE_KEY="<clé privée>" VAPID_SUBJECT="mailto:ton@email.fr" PUSH_WEBHOOK_SECRET="<le secret généré>"

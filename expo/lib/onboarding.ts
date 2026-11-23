@@ -1,6 +1,6 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage, storageKey } from "@/lib/storage";
 
-const keyFor = (userId: string) => `gather.onboarding.v1.${userId}`;
+const keyFor = (userId: string) => storageKey(`onboarding.v1.${userId}`);
 
 /**
  * Whether this user already saw the welcome tutorial on this device.
@@ -8,7 +8,7 @@ const keyFor = (userId: string) => `gather.onboarding.v1.${userId}`;
  */
 export async function hasSeenOnboarding(userId: string): Promise<boolean> {
   try {
-    return (await AsyncStorage.getItem(keyFor(userId))) === "1";
+    return (await storage.getItem(keyFor(userId))) === "1";
   } catch {
     return true;
   }
@@ -16,7 +16,7 @@ export async function hasSeenOnboarding(userId: string): Promise<boolean> {
 
 export async function markOnboardingSeen(userId: string): Promise<void> {
   try {
-    await AsyncStorage.setItem(keyFor(userId), "1");
+    await storage.setItem(keyFor(userId), "1");
   } catch {
     // Non-fatal — the tutorial may simply show again next launch.
   }

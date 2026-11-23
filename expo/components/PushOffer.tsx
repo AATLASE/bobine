@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage, storageKey } from "@/lib/storage";
 import { BellRing } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
@@ -12,7 +12,7 @@ import { useAuth } from "@/providers/auth";
 
 /** "Plus tard" hides the offer for this long, then it may come back. */
 const SNOOZE_MS = 14 * 24 * 60 * 60 * 1000;
-const keyFor = (userId: string) => `gather.pushOffer.snoozed.${userId}`;
+const keyFor = (userId: string) => storageKey(`pushOffer.snoozed.${userId}`);
 
 /**
  * Offers push at the one moment it answers a question the user has: their
@@ -31,7 +31,7 @@ export function PushOffer() {
   useEffect(() => {
     if (!userId) return;
     let active = true;
-    AsyncStorage.getItem(keyFor(userId))
+    storage.getItem(keyFor(userId))
       .then((raw) => {
         if (active) setSnoozed(!!raw && Date.now() - Number(raw) < SNOOZE_MS);
       })
@@ -47,7 +47,7 @@ export function PushOffer() {
 
   const later = () => {
     setSnoozed(true);
-    AsyncStorage.setItem(keyFor(userId), String(Date.now())).catch(() => {});
+    storage.setItem(keyFor(userId), String(Date.now())).catch(() => {});
   };
 
   return (

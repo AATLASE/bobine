@@ -1,5 +1,5 @@
 -- Local test data, loaded by `supabase start` / `supabase db reset` (never runs on prod).
--- Accounts (password for all: gather-test-1):
+-- Accounts (password for all: bobine-test-1):
 --   owner@test.local        owner of "Espace test"
 --   membre@test.local       member
 --   observateur@test.local  observer
@@ -11,7 +11,7 @@ insert into auth.users (instance_id, id, aud, role, email, encrypted_password, e
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
   confirmation_token, email_change, email_change_token_new, recovery_token)
 select '00000000-0000-0000-0000-000000000000', u.id, 'authenticated', 'authenticated', u.email,
-  crypt('gather-test-1', gen_salt('bf')), now(),
+  crypt('bobine-test-1', gen_salt('bf')), now(),
   '{"provider":"email","providers":["email"]}', jsonb_build_object('name', u.name), now(), now(), '', '', '', ''
 from (values
   ('11111111-1111-1111-1111-111111111111'::uuid, 'owner@test.local', 'Olivia'),

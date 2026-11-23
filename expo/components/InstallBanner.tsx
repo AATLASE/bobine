@@ -9,11 +9,12 @@ import { Button, IconButton } from "@/components/ui/Button";
 import { AppText } from "@/components/ui/Text";
 import { colors, radius, shadows, spacing } from "@/constants/theme";
 import { getInstallPath, promptInstall, subscribeInstall, type InstallPath } from "@/lib/pwa";
+import { storageKey } from "@/lib/storage";
 import { useLayout } from "@/hooks/useLayout";
 import { useAuth } from "@/providers/auth";
 import { useToast } from "@/providers/toast";
 
-const SNOOZE_KEY = "gather.install-banner.snoozed-at";
+const SNOOZE_KEY = storageKey("install-banner.snoozed-at");
 /** "Plus tard" means later, not never: the banner comes back after a week. */
 const SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
 /** Let the first screen land before asking for anything. */

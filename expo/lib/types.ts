@@ -1,4 +1,4 @@
-/** Domain types mirroring the existing Supabase schema (project created under the name "Gather"). */
+/** Domain types mirroring the existing Supabase schema. */
 
 export type MemberRole = "owner" | "member" | "observer";
 

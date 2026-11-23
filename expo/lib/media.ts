@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage, storageKey } from "@/lib/storage";
 import { decode, encode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system/legacy";
 import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
@@ -258,7 +258,7 @@ interface PathCandidate {
   folder: string;
 }
 
-const TEMPLATE_CACHE_KEY = "gather.media.upload-template.v1";
+const TEMPLATE_CACHE_KEY = storageKey("media.upload-template.v1");
 
 /** Inline data-URL fallback is only used for small images (covers/avatars). */
 const INLINE_FALLBACK_MAX_BYTES = 900_000;
@@ -304,7 +304,7 @@ let templateMemo: string | null | undefined;
 async function readCachedTemplate(): Promise<string | null> {
   if (templateMemo !== undefined) return templateMemo;
   try {
-    templateMemo = await AsyncStorage.getItem(TEMPLATE_CACHE_KEY);
+    templateMemo = await storage.getItem(TEMPLATE_CACHE_KEY);
   } catch {
     templateMemo = null;
   }
@@ -313,7 +313,7 @@ async function readCachedTemplate(): Promise<string | null> {
 
 function writeCachedTemplate(template: string): void {
   templateMemo = template;
-  AsyncStorage.setItem(TEMPLATE_CACHE_KEY, template).catch(() => {});
+  storage.setItem(TEMPLATE_CACHE_KEY, template).catch(() => {});
 }
 
 async function uploadBytes(folder: string, bytes: ArrayBuffer, mimeType: string, ext: string): Promise<string> {

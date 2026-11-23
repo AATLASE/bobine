@@ -51,7 +51,7 @@ self.addEventListener("push", (event) => {
     badge: "/badge-96.png",
     /* One notification per episode rather than a stack of near-identical
      * banners: a new comment replaces the previous one on the same episode. */
-    tag: payload.tag || url || "gather",
+    tag: payload.tag || url || "bobine",
     renotify: Boolean(payload.tag || payload.url),
     vibrate: [180, 80, 180],
     timestamp: Date.now(),

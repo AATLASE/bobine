@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage, storageKey } from "@/lib/storage";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
@@ -209,11 +209,11 @@ async function storeSubscription(sub: WebSubscription): Promise<void> {
 /* The "off" switch is a per-account choice on this device. Without it, the next
  * launch re-registered a device whose permission was still granted, and the
  * notifications came back on their own. */
-const optOutKey = (userId: string) => `gather.pushOptOut.v1.${userId}`;
+const optOutKey = (userId: string) => storageKey(`pushOptOut.v1.${userId}`);
 
 export async function pushOptedOut(userId: string): Promise<boolean> {
   try {
-    return (await AsyncStorage.getItem(optOutKey(userId))) === "1";
+    return (await storage.getItem(optOutKey(userId))) === "1";
   } catch {
     return false;
   }
@@ -221,8 +221,8 @@ export async function pushOptedOut(userId: string): Promise<boolean> {
 
 async function setPushOptOut(userId: string, optedOut: boolean): Promise<void> {
   try {
-    if (optedOut) await AsyncStorage.setItem(optOutKey(userId), "1");
-    else await AsyncStorage.removeItem(optOutKey(userId));
+    if (optedOut) await storage.setItem(optOutKey(userId), "1");
+    else await storage.removeItem(optOutKey(userId));
   } catch {}
 }
 

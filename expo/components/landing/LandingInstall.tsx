@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { getInstallPath, isPhone, promptInstall, subscribeInstall, type InstallPath } from "@/lib/pwa";
+import { storageKey } from "@/lib/storage";
 
 /**
  * "Get the app" offers on the public landing page: a small popup at the bottom
@@ -12,7 +13,7 @@ import { getInstallPath, isPhone, promptInstall, subscribeInstall, type InstallP
  * Imported by Landing.web.tsx only, so it never reaches the native bundles.
  */
 
-const SNOOZE_KEY = "gather.landing-install.snoozed-at";
+const SNOOZE_KEY = storageKey("landing-install.snoozed-at");
 /** A closed popup stays closed for a week, not forever. */
 const SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
 /** Let the hero land before asking for anything. */

@@ -1,5 +1,5 @@
 import createContextHook from "@nkzw/create-context-hook";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage, storageKey } from "@/lib/storage";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMySpaces } from "@/hooks/useSpaces";
 import { useAuth } from "@/providers/auth";
@@ -13,7 +13,7 @@ import { useAuth } from "@/providers/auth";
  * params — one navigation level less, and a tab bar that never disappears.
  */
 
-const keyFor = (userId: string) => `gather.activeSpace.v1.${userId}`;
+const keyFor = (userId: string) => storageKey(`activeSpace.v1.${userId}`);
 
 const [Provider, useStore] = createContextHook(() => {
   const { userId } = useAuth();
@@ -28,7 +28,7 @@ const [Provider, useStore] = createContextHook(() => {
       return;
     }
     setHydrated(false);
-    AsyncStorage.getItem(keyFor(userId))
+    storage.getItem(keyFor(userId))
       .then((value) => {
         if (!active) return;
         setStoredId(value);
@@ -48,8 +48,8 @@ const [Provider, useStore] = createContextHook(() => {
       setStoredId(id);
       if (!userId) return;
       const write = id
-        ? AsyncStorage.setItem(keyFor(userId), id)
-        : AsyncStorage.removeItem(keyFor(userId));
+        ? storage.setItem(keyFor(userId), id)
+        : storage.removeItem(keyFor(userId));
       write.catch(() => {});
     },
     [userId]

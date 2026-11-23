@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage, storageKey } from "@/lib/storage";
 import * as FileSystem from "expo-file-system/legacy";
 import { AppState, Platform } from "react-native";
 import { qk } from "./keys";
@@ -57,7 +57,7 @@ export interface UploadJob {
   createdAt: number;
 }
 
-const QUEUE_KEY = "gather.media.upload-queue.v1";
+const QUEUE_KEY = storageKey("media.upload-queue.v1");
 
 /**
  * Where the files wait. The picker hands back a path in the cache directory,
@@ -129,7 +129,7 @@ function commit(next: UploadJob[]): Promise<void> {
   queue = next;
   for (const listener of listeners) listener();
   if (!PERSISTS) return Promise.resolve();
-  return AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(queue)).catch((e) => {
+  return storage.setItem(QUEUE_KEY, JSON.stringify(queue)).catch((e) => {
     console.log("[upload-queue] could not persist the queue:", e);
   });
 }
@@ -141,7 +141,7 @@ async function load(): Promise<void> {
     loading = (async () => {
       if (!PERSISTS) return;
       try {
-        const raw = await AsyncStorage.getItem(QUEUE_KEY);
+        const raw = await storage.getItem(QUEUE_KEY);
         if (raw) queue = JSON.parse(raw) as UploadJob[];
       } catch (e) {
         console.log("[upload-queue] unreadable queue, starting empty:", e);

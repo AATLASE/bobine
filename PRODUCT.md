@@ -39,5 +39,5 @@ WCAG 2.2 AA: text contrast, visible focus, keyboard-reachable CTAs, meaningful a
 
 ## Brand
 
-The product is called **Bobine** (formerly Gather). Its identity system (logo, palette, type, voice, components) lives in the "Bobine · Système d'identité" design system. In short: the logo is a film reel that also reads as a round table seen from above, five places around a shared moment (the yellow hub). Palette: red #D7372A for brand and the main action, sun #F5C542 for the shared moment and reveals, warm paper #FBF6EE by day, cinema black #151012 at night. Type: Bricolage Grotesque for titles, Figtree for text, Gochi Hand only for revealed reviews and captions.
+The product is called **Bobine**. Its identity system (logo, palette, type, voice, components) lives in the "Bobine · Système d'identité" design system. In short: the logo is a film reel that also reads as a round table seen from above, five places around a shared moment (the yellow hub). Palette: red #D7372A for brand and the main action, sun #F5C542 for the shared moment and reveals, warm paper #FBF6EE by day, cinema black #151012 at night. Type: Bricolage Grotesque for titles, Figtree for text, Gochi Hand only for revealed reviews and captions.
 

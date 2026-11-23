@@ -1,5 +1,5 @@
 import createContextHook from "@nkzw/create-context-hook";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage, storageKey } from "@/lib/storage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useColorScheme } from "react-native";
 import { applyPalette, ThemeScheme } from "@/constants/theme";
@@ -7,14 +7,14 @@ import { applyPalette, ThemeScheme } from "@/constants/theme";
 /** User preference: follow the phone, or force light/dark. */
 export type ThemeMode = "system" | "light" | "dark";
 
-const STORAGE_KEY = "gather.themeMode.v1";
+const STORAGE_KEY = storageKey("themeMode.v1");
 
 export const [ThemeProvider, useThemeMode] = createContextHook(() => {
   const systemScheme = useColorScheme();
   const [mode, setModeState] = useState<ThemeMode>("system");
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
+    storage.getItem(STORAGE_KEY)
       .then((value) => {
         if (value === "light" || value === "dark" || value === "system") {
           setModeState(value);
@@ -37,7 +37,7 @@ export const [ThemeProvider, useThemeMode] = createContextHook(() => {
 
   const setMode = useCallback((next: ThemeMode) => {
     setModeState(next);
-    AsyncStorage.setItem(STORAGE_KEY, next).catch(() => {});
+    storage.setItem(STORAGE_KEY, next).catch(() => {});
   }, []);
 
   return { mode, setMode, resolved };
